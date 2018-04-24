@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2018-04-24 Tue 15:45 -->
+<!-- 2018-04-24 Tue 15:46 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>&lrm;</title>
@@ -266,43 +266,43 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgc54a215">1. Election Algorithms</a>
+<li><a href="#orgab73a1c">1. Election Algorithms</a>
 <ul>
-<li><a href="#org18cfd44">1.1. Assumptions</a></li>
-<li><a href="#orgb8abc97">1.2. Chang-Roberts algorithm</a>
+<li><a href="#org9654a79">1.1. Assumptions</a></li>
+<li><a href="#org03a331f">1.2. Chang-Roberts algorithm</a>
 <ul>
-<li><a href="#org40c1ece">1.2.1. How it works</a></li>
-<li><a href="#org6fe9d67">1.2.2. Complexity</a></li>
+<li><a href="#orga01c081">1.2.1. How it works</a></li>
+<li><a href="#orgb7f84d0">1.2.2. Complexity</a></li>
 </ul>
 </li>
-<li><a href="#org63771c1">1.3. Franklin Algorithm</a>
+<li><a href="#orge071b15">1.3. Franklin Algorithm</a>
 <ul>
-<li><a href="#org0d9beb4">1.3.1. How it works:</a></li>
-<li><a href="#orgb7195f9">1.3.2. Features</a></li>
-<li><a href="#orgc3f3d3c">1.3.3. Adapting Franklin to directed ring (Dolev-Klawe-Rodeh algorithm):</a></li>
+<li><a href="#orgd9385a9">1.3.1. How it works:</a></li>
+<li><a href="#org1a4cb31">1.3.2. Features</a></li>
+<li><a href="#orgc96496c">1.3.3. Adapting Franklin to directed ring (Dolev-Klawe-Rodeh algorithm):</a></li>
 </ul>
 </li>
-<li><a href="#org16bfb96">1.4. Acyclic Networks</a></li>
-<li><a href="#orgd97e3bd">1.5. Echo algorithm (with extinction)</a>
+<li><a href="#org68d3819">1.4. Acyclic Networks</a></li>
+<li><a href="#org54d3ef1">1.5. Echo algorithm (with extinction)</a>
 <ul>
-<li><a href="#org3109ccf">1.5.1. Worst case complexity</a></li>
+<li><a href="#org0a8a507">1.5.1. Worst case complexity</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org5dc6575">2. Minimum Spanning Trees (MST)</a>
+<li><a href="#org25eea7e">2. Minimum Spanning Trees (MST)</a>
 <ul>
-<li><a href="#org54a8301">2.1. Lemma:</a></li>
-<li><a href="#org33f3300">2.2. Gallager-Humblet-Spira Algorithm</a>
+<li><a href="#org58ee73c">2.1. Lemma:</a></li>
+<li><a href="#org912aa1c">2.2. Gallager-Humblet-Spira Algorithm</a>
 <ul>
-<li><a href="#org7cc1dd2">2.2.1. Complications</a></li>
-<li><a href="#orgf830a78">2.2.2. Level, name and core edge:</a></li>
-<li><a href="#org2f95ff7">2.2.3. Initialisation</a></li>
-<li><a href="#org7906b7e">2.2.4. Joining two fragments</a></li>
-<li><a href="#org451b774">2.2.5. Computing the lowest-weight outgoing edge</a></li>
-<li><a href="#org64f674f">2.2.6. Reporting to core nodes</a></li>
-<li><a href="#orgaf9dafb">2.2.7. Termination or changeroot at the core nodes</a></li>
-<li><a href="#orgca18628">2.2.8. <span class="todo TODO">TODO</span> Starting the join of two fragments</a></li>
+<li><a href="#orgf38df71">2.2.1. Complications</a></li>
+<li><a href="#org258c040">2.2.2. Level, name and core edge:</a></li>
+<li><a href="#org0cca2da">2.2.3. Initialisation</a></li>
+<li><a href="#orgf200d39">2.2.4. Joining two fragments</a></li>
+<li><a href="#org80a71f6">2.2.5. Computing the lowest-weight outgoing edge</a></li>
+<li><a href="#org7a5ca03">2.2.6. Reporting to core nodes</a></li>
+<li><a href="#orge6176c4">2.2.7. Termination or changeroot at the core nodes</a></li>
+<li><a href="#orgb38df97">2.2.8. <span class="todo TODO">TODO</span> Starting the join of two fragments</a></li>
 </ul>
 </li>
 </ul>
@@ -311,8 +311,8 @@ for the JavaScript code in this tag.
 </div>
 </div>
 
-<div id="outline-container-orgc54a215" class="outline-2">
-<h2 id="orgc54a215"><span class="section-number-2">1</span> Election Algorithms</h2>
+<div id="outline-container-orgab73a1c" class="outline-2">
+<h2 id="orgab73a1c"><span class="section-number-2">1</span> Election Algorithms</h2>
 <div class="outline-text-2" id="text-1">
 <ul class="org-ul">
 <li>Leader process to coordinate distributed task</li>
@@ -320,8 +320,8 @@ for the JavaScript code in this tag.
 process</b> is leader</li>
 </ul>
 </div>
-<div id="outline-container-org18cfd44" class="outline-3">
-<h3 id="org18cfd44"><span class="section-number-3">1.1</span> Assumptions</h3>
+<div id="outline-container-org9654a79" class="outline-3">
+<h3 id="org9654a79"><span class="section-number-3">1.1</span> Assumptions</h3>
 <div class="outline-text-3" id="text-1-1">
 <ul class="org-ul">
 <li>The algorithm is <b>decentralised</b></li>
@@ -331,16 +331,16 @@ process</b> is leader</li>
 </div>
 </div>
 
-<div id="outline-container-orgb8abc97" class="outline-3">
-<h3 id="orgb8abc97"><span class="section-number-3">1.2</span> Chang-Roberts algorithm</h3>
+<div id="outline-container-org03a331f" class="outline-3">
+<h3 id="org03a331f"><span class="section-number-3">1.2</span> Chang-Roberts algorithm</h3>
 <div class="outline-text-3" id="text-1-2">
 <ul class="org-ul">
 <li>Directed ring</li>
 <li>only initiators are <b>active</b> and send message with their id's</li>
 </ul>
 </div>
-<div id="outline-container-org40c1ece" class="outline-4">
-<h4 id="org40c1ece"><span class="section-number-4">1.2.1</span> How it works</h4>
+<div id="outline-container-orga01c081" class="outline-4">
+<h4 id="orga01c081"><span class="section-number-4">1.2.1</span> How it works</h4>
 <div class="outline-text-4" id="text-1-2-1">
 <p>
 Let active process P receive message Q
@@ -352,8 +352,8 @@ Let active process P receive message Q
 </ul>
 </div>
 </div>
-<div id="outline-container-org6fe9d67" class="outline-4">
-<h4 id="org6fe9d67"><span class="section-number-4">1.2.2</span> Complexity</h4>
+<div id="outline-container-orgb7f84d0" class="outline-4">
+<h4 id="orgb7f84d0"><span class="section-number-4">1.2.2</span> Complexity</h4>
 <div class="outline-text-4" id="text-1-2-2">
 <ul class="org-ul">
 <li>Worst case O(N<sup>2</sup>)</li>
@@ -362,15 +362,15 @@ Let active process P receive message Q
 </div>
 </div>
 
-<div id="outline-container-org63771c1" class="outline-3">
-<h3 id="org63771c1"><span class="section-number-3">1.3</span> Franklin Algorithm</h3>
+<div id="outline-container-orge071b15" class="outline-3">
+<h3 id="orge071b15"><span class="section-number-3">1.3</span> Franklin Algorithm</h3>
 <div class="outline-text-3" id="text-1-3">
 <ul class="org-ul">
 <li>Consider <b>Undirected Ring</b></li>
 </ul>
 </div>
-<div id="outline-container-org0d9beb4" class="outline-4">
-<h4 id="org0d9beb4"><span class="section-number-4">1.3.1</span> How it works:</h4>
+<div id="outline-container-orgd9385a9" class="outline-4">
+<h4 id="orgd9385a9"><span class="section-number-4">1.3.1</span> How it works:</h4>
 <div class="outline-text-4" id="text-1-3-1">
 <ul class="org-ul">
 <li>Each process P compares its id with id of active neighbours</li>
@@ -386,8 +386,8 @@ Let active process P receive message Q
 </ul>
 </div>
 </div>
-<div id="outline-container-orgb7195f9" class="outline-4">
-<h4 id="orgb7195f9"><span class="section-number-4">1.3.2</span> Features</h4>
+<div id="outline-container-org1a4cb31" class="outline-4">
+<h4 id="org1a4cb31"><span class="section-number-4">1.3.2</span> Features</h4>
 <div class="outline-text-4" id="text-1-3-2">
 <ul class="org-ul">
 <li>Always takes 2 rounds if ID's are <b>sorted</b></li>
@@ -397,8 +397,8 @@ sides of ring</li>
 </div>
 </div>
 
-<div id="outline-container-orgc3f3d3c" class="outline-4">
-<h4 id="orgc3f3d3c"><span class="section-number-4">1.3.3</span> Adapting Franklin to directed ring (Dolev-Klawe-Rodeh algorithm):</h4>
+<div id="outline-container-orgc96496c" class="outline-4">
+<h4 id="orgc96496c"><span class="section-number-4">1.3.3</span> Adapting Franklin to directed ring (Dolev-Klawe-Rodeh algorithm):</h4>
 <div class="outline-text-4" id="text-1-3-3">
 <ul class="org-ul">
 <li>Consider a directed ring</li>
@@ -417,8 +417,8 @@ and r is performed at r</li>
 </div>
 
 
-<div id="outline-container-org16bfb96" class="outline-3">
-<h3 id="org16bfb96"><span class="section-number-3">1.4</span> Acyclic Networks</h3>
+<div id="outline-container-org68d3819" class="outline-3">
+<h3 id="org68d3819"><span class="section-number-3">1.4</span> Acyclic Networks</h3>
 <div class="outline-text-3" id="text-1-4">
 <ul class="org-ul">
 <li>Start with <b>wake-up phase</b> driven by initiators
@@ -438,8 +438,8 @@ max'<sub>p</sub> being the maximum of max<sub>p</sub> and q</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgd97e3bd" class="outline-3">
-<h3 id="orgd97e3bd"><span class="section-number-3">1.5</span> Echo algorithm (with extinction)</h3>
+<div id="outline-container-org54d3ef1" class="outline-3">
+<h3 id="org54d3ef1"><span class="section-number-3">1.5</span> Echo algorithm (with extinction)</h3>
 <div class="outline-text-3" id="text-1-5">
 <ul class="org-ul">
 <li>each initiator starts a wave, tagged with its id</li>
@@ -453,8 +453,8 @@ max'<sub>p</sub> being the maximum of max<sub>p</sub> and q</li>
 </ul>
 </div>
 
-<div id="outline-container-org3109ccf" class="outline-4">
-<h4 id="org3109ccf"><span class="section-number-4">1.5.1</span> Worst case complexity</h4>
+<div id="outline-container-org0a8a507" class="outline-4">
+<h4 id="org0a8a507"><span class="section-number-4">1.5.1</span> Worst case complexity</h4>
 <div class="outline-text-4" id="text-1-5-1">
 <p>
 O(N * E)
@@ -464,8 +464,8 @@ O(N * E)
 </div>
 </div>
 
-<div id="outline-container-org5dc6575" class="outline-2">
-<h2 id="org5dc6575"><span class="section-number-2">2</span> Minimum Spanning Trees (MST)</h2>
+<div id="outline-container-org25eea7e" class="outline-2">
+<h2 id="org25eea7e"><span class="section-number-2">2</span> Minimum Spanning Trees (MST)</h2>
 <div class="outline-text-2" id="text-2">
 <ul class="org-ul">
 <li>Consider an <b>undirected</b>, <b>weighted</b> network.</li>
@@ -473,8 +473,8 @@ O(N * E)
 </ul>
 </div>
 
-<div id="outline-container-org54a8301" class="outline-3">
-<h3 id="org54a8301"><span class="section-number-3">2.1</span> Lemma:</h3>
+<div id="outline-container-org58ee73c" class="outline-3">
+<h3 id="org58ee73c"><span class="section-number-3">2.1</span> Lemma:</h3>
 <div class="outline-text-3" id="text-2-1">
 <ul class="org-ul">
 <li>let F be a <b>fragment</b> (a connected subgraph of the MST M)</li>
@@ -488,8 +488,8 @@ O(N * E)
 </div>
 </div>
 
-<div id="outline-container-org33f3300" class="outline-3">
-<h3 id="org33f3300"><span class="section-number-3">2.2</span> Gallager-Humblet-Spira Algorithm</h3>
+<div id="outline-container-org912aa1c" class="outline-3">
+<h3 id="org912aa1c"><span class="section-number-3">2.2</span> Gallager-Humblet-Spira Algorithm</h3>
 <div class="outline-text-3" id="text-2-2">
 <ul class="org-ul">
 <li>Consider <b>undirected</b>, <b>weighted</b> network
@@ -504,8 +504,8 @@ collaborate in merge</li>
 </ul>
 </div>
 
-<div id="outline-container-org7cc1dd2" class="outline-4">
-<h4 id="org7cc1dd2"><span class="section-number-4">2.2.1</span> Complications</h4>
+<div id="outline-container-orgf38df71" class="outline-4">
+<h4 id="orgf38df71"><span class="section-number-4">2.2.1</span> Complications</h4>
 <div class="outline-text-4" id="text-2-2-1">
 <ul class="org-ul">
 <li>is the edge outgoing?</li>
@@ -514,8 +514,8 @@ collaborate in merge</li>
 </div>
 </div>
 
-<div id="outline-container-orgf830a78" class="outline-4">
-<h4 id="orgf830a78"><span class="section-number-4">2.2.2</span> Level, name and core edge:</h4>
+<div id="outline-container-org258c040" class="outline-4">
+<h4 id="org258c040"><span class="section-number-4">2.2.2</span> Level, name and core edge:</h4>
 <div class="outline-text-4" id="text-2-2-2">
 <p>
 Each fragment carries a (unique) <b>name</b> fn : R and a <b>level</b> l : N
@@ -553,8 +553,8 @@ follows:</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org2f95ff7" class="outline-4">
-<h4 id="org2f95ff7"><span class="section-number-4">2.2.3</span> Initialisation</h4>
+<div id="outline-container-org0cca2da" class="outline-4">
+<h4 id="org0cca2da"><span class="section-number-4">2.2.3</span> Initialisation</h4>
 <div class="outline-text-4" id="text-2-2-3">
 <ul class="org-ul">
 <li>Non-initiators  wake up when they recieve a (<b>connect</b> or <b>test</b>) msg</li>
@@ -564,8 +564,8 @@ follows:</li>
 </div>
 </div>
 
-<div id="outline-container-org7906b7e" class="outline-4">
-<h4 id="org7906b7e"><span class="section-number-4">2.2.4</span> Joining two fragments</h4>
+<div id="outline-container-orgf200d39" class="outline-4">
+<h4 id="orgf200d39"><span class="section-number-4">2.2.4</span> Joining two fragments</h4>
 <div class="outline-text-4" id="text-2-2-4">
 <p>
 Let fragments \(F = (fn,l)\) and \(F'=(fn', l')\) be joined ia channel \(pq\)
@@ -592,8 +592,8 @@ l sets its state to find or found and adopts the sender as its <b>parent</b></li
 </div>
 </div>
 
-<div id="outline-container-org451b774" class="outline-4">
-<h4 id="org451b774"><span class="section-number-4">2.2.5</span> Computing the lowest-weight outgoing edge</h4>
+<div id="outline-container-org80a71f6" class="outline-4">
+<h4 id="org80a71f6"><span class="section-number-4">2.2.5</span> Computing the lowest-weight outgoing edge</h4>
 <div class="outline-text-4" id="text-2-2-5">
 <ul class="org-ul">
 <li>In the case of $&lt;initiate, fn, l, find&gt; p checks in increasing order of
@@ -612,8 +612,8 @@ search</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org64f674f" class="outline-4">
-<h4 id="org64f674f"><span class="section-number-4">2.2.6</span> Reporting to core nodes</h4>
+<div id="outline-container-org7a5ca03" class="outline-4">
+<h4 id="org7a5ca03"><span class="section-number-4">2.2.6</span> Reporting to core nodes</h4>
 <div class="outline-text-4" id="text-2-2-6">
 <ul class="org-ul">
 <li>p waits for all its branch edges, except its parent, to report</li>
@@ -626,8 +626,8 @@ its lowest-weight outgoing basic edge (or &infin; if no such channel is found)</
 </div>
 </div>
 
-<div id="outline-container-orgaf9dafb" class="outline-4">
-<h4 id="orgaf9dafb"><span class="section-number-4">2.2.7</span> Termination or changeroot at the core nodes</h4>
+<div id="outline-container-orge6176c4" class="outline-4">
+<h4 id="orge6176c4"><span class="section-number-4">2.2.7</span> Termination or changeroot at the core nodes</h4>
 <div class="outline-text-4" id="text-2-2-7">
 <p>
 a core node recieves reports throguh all its branch edges including the core edge
@@ -644,8 +644,8 @@ towards the lowest-weight ougoing basic edge</li>
 </div>
 
 
-<div id="outline-container-orgca18628" class="outline-4">
-<h4 id="orgca18628"><span class="section-number-4">2.2.8</span> <span class="todo TODO">TODO</span> Starting the join of two fragments</h4>
+<div id="outline-container-orgb38df97" class="outline-4">
+<h4 id="orgb38df97"><span class="section-number-4">2.2.8</span> <span class="todo TODO">TODO</span> Starting the join of two fragments</h4>
 <div class="outline-text-4" id="text-2-2-8">
 <ul class="org-ul">
 <li>when q receives \(<connect, level_p>\) from p, \(level_q >= level_p\)
@@ -671,7 +671,7 @@ find&gt; to p (and vice versa)</li>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Marijan Gradecak</p>
-<p class="date">Created: 2018-04-24 Tue 15:45</p>
+<p class="date">Created: 2018-04-24 Tue 15:46</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

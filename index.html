@@ -1,0 +1,20 @@
+<html>
+
+  <head>
+    <title> collection of org notes </title>
+  </head>
+
+  <body>
+    <div class="content"></div>
+
+    <script>
+     xhttp.onreadystatechange = function() {
+       if (this.readyState == 4 && this.status == 200) {
+         document.getElementById("content").innerHTML = this.responseText;
+       }
+     };
+     xhttp.open("GET", "https://api.github.com/repos/gradecak/org_notes/contents/", true);
+     xhttp.send();
+    </script>
+  </body>
+</html>

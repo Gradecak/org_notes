@@ -18,7 +18,7 @@
            /* console.log(i.type) */
            if(listing[i].type == "file" && listing[i].name != "index.html"){
              link = document.createElement("li");
-             link.innerHTML = '<a href="' + listing[i].name + '">' + listing[i].name +'</a>'
+             link.innerHTML = '<a href="/org_notes/' + listing[i].name + '">' + listing[i].name +'</a>'
              list.appendChild(link)
            }
          }

@@ -70,3 +70,54 @@
    message from possible leader form previous round will be discarded
 
    - Don't need to be largest id in the network to progress to next round
+
+** Computing the size of the network
+   - there is no Las Vegas algorithm to compute size of an anonymous ring
+   - Hence it is impossible to have a Las Vegas election algorithm if processes
+     do not know network size
+* Itai-Rodeh ring size algorithm
+  - Each process p maintains an estimate (*est_{p}*) of the ring size
+  - initially est_{p} = 2
+  - p initiates an estimate round at:
+    - start on an alg run
+    - at each update of est_{p}
+  - Each round, p selects random id_{p} in ${1, .., R}$ sends *(est_{p}, id_{p}, 1)*
+    - hc = hopcount
+    - p waits for a message *(est, id, hc)*
+      - always hc < est
+  - Every note *will* have the same estimate at the end of algorithm run
+
+** How it works
+   - est < est_p P dismisses the message
+   - est > est_p
+     - if h < est p sends (est, id, h +1) and est_p <- est
+     - if h = est then est_p <- est + 1
+   - est = est_p
+     - if h < est, then p sends (est, id, h+1)
+     - if h = est and id != id_p then est_p <- est + 1
+     - if h = est and id = id_p then p dismisses the message (possibly its own message returned)
+
+** Pitfalls
+   - since it is a Monte Carlo algorithm it can result in est < N at the end of
+     run
+
+** Complexity
+   - The prob of computing an incorrect size thends to 0 as R tends to infinity
+* Leader Election in unknown *acyclic* network
+  - A tree algorithm is used
+  - Networks containing a *cycle* result in a time-out
+    - Tree algorithm results in deadlock in cyclic networks
+** How it works
+   - When a process has one possible parent it sends a *parent request* to its neighbour
+     - if request accepted an *ack* is sent back
+   - Last 2 parentless processes can send parent requests to each other.
+     - *Root contention*
+   - Each process in root contention randomly decides to
+     - (a) /wait some time/ for a parent request from the other process
+     - (b) /immediately/ send a parent request again
+   - node which waited becomes the leader of network
+
+** Interesting note
+   - During root contention it is better to give higher probability to sending
+     again rather than to waiting
+     - *Highly dependant on the network condition*

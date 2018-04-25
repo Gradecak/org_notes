@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2018-04-25 Wed 16:18 -->
+<!-- 2018-04-25 Wed 17:09 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Elections in Anonymous Networks</title>
@@ -267,36 +267,50 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgc7f72ca">1. Elections in anonymous networks</a>
+<li><a href="#org0c8db14">1. Elections in anonymous networks</a>
 <ul>
-<li><a href="#org8744125">1.1. Pitfalls of elections</a></li>
-<li><a href="#orgb489947">1.2. Fairness</a></li>
-<li><a href="#orgfb69a62">1.3. Probabilistic algorithms</a>
+<li><a href="#org063f77e">1.1. Pitfalls of elections</a></li>
+<li><a href="#org5ff10cb">1.2. Fairness</a></li>
+<li><a href="#orgc61a464">1.3. Probabilistic algorithms</a>
 <ul>
-<li><a href="#org9a28a30">1.3.1. Las Vegas and Monte Carlo</a></li>
+<li><a href="#orgc8115bc">1.3.1. Las Vegas and Monte Carlo</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org6a41377">2. Itai-Rodeh election algorithm</a>
+<li><a href="#org9f19bfa">2. Itai-Rodeh election algorithm</a>
 <ul>
-<li><a href="#orgea5f98f">2.1. How it works</a>
+<li><a href="#orgb9fc586">2.1. How it works</a>
 <ul>
-<li><a href="#org7ae4520">2.1.1. Message Complexity</a></li>
+<li><a href="#org2e96ffd">2.1.1. Message Complexity</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org299200e">3. Echo Algorithm</a>
+<li><a href="#orgcfaf59f">3. Echo Algorithm</a>
 <ul>
-<li><a href="#org26e61d6">3.1. Pitfalls</a></li>
+<li><a href="#org095c9c2">3.1. Pitfalls</a></li>
+<li><a href="#org482b10e">3.2. Computing the size of the network</a></li>
+</ul>
+</li>
+<li><a href="#org65d20ac">4. Itai-Rodeh ring size algorithm</a>
+<ul>
+<li><a href="#orgf2be076">4.1. How it works</a></li>
+<li><a href="#org2059153">4.2. Pitfalls</a></li>
+<li><a href="#orgcd5333c">4.3. Complexity</a></li>
+</ul>
+</li>
+<li><a href="#orgea3373b">5. Leader Election in unknown <b>acyclic</b> network</a>
+<ul>
+<li><a href="#org232ae0b">5.1. How it works</a></li>
+<li><a href="#orgc39280d">5.2. Interesting note</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgc7f72ca" class="outline-2">
-<h2 id="orgc7f72ca"><span class="section-number-2">1</span> Elections in anonymous networks</h2>
+<div id="outline-container-org0c8db14" class="outline-2">
+<h2 id="org0c8db14"><span class="section-number-2">1</span> Elections in anonymous networks</h2>
 <div class="outline-text-2" id="text-1">
 <ul class="org-ul">
 <li>anonymous networks are networks in which processes <b>do not</b> have unique id's
@@ -314,8 +328,8 @@ and uses it as id</li>
 </ul>
 </div>
 
-<div id="outline-container-org8744125" class="outline-3">
-<h3 id="org8744125"><span class="section-number-3">1.1</span> Pitfalls of elections</h3>
+<div id="outline-container-org063f77e" class="outline-3">
+<h3 id="org063f77e"><span class="section-number-3">1.1</span> Pitfalls of elections</h3>
 <div class="outline-text-3" id="text-1-1">
 <ul class="org-ul">
 <li>Anonymous network elections not always terminating</li>
@@ -323,8 +337,8 @@ and uses it as id</li>
 </div>
 </div>
 
-<div id="outline-container-orgb489947" class="outline-3">
-<h3 id="orgb489947"><span class="section-number-3">1.2</span> Fairness</h3>
+<div id="outline-container-org5ff10cb" class="outline-3">
+<h3 id="org5ff10cb"><span class="section-number-3">1.2</span> Fairness</h3>
 <div class="outline-text-3" id="text-1-2">
 <ul class="org-ul">
 <li>if an event E can occur it is never ignored infinitely many times</li>
@@ -332,8 +346,8 @@ and uses it as id</li>
 </div>
 </div>
 
-<div id="outline-container-orgfb69a62" class="outline-3">
-<h3 id="orgfb69a62"><span class="section-number-3">1.3</span> Probabilistic algorithms</h3>
+<div id="outline-container-orgc61a464" class="outline-3">
+<h3 id="orgc61a464"><span class="section-number-3">1.3</span> Probabilistic algorithms</h3>
 <div class="outline-text-3" id="text-1-3">
 <ul class="org-ul">
 <li>in a probabilistic algorithm a process may performed an even based on a
@@ -341,8 +355,8 @@ random choice</li>
 </ul>
 </div>
 
-<div id="outline-container-org9a28a30" class="outline-4">
-<h4 id="org9a28a30"><span class="section-number-4">1.3.1</span> Las Vegas and Monte Carlo</h4>
+<div id="outline-container-orgc8115bc" class="outline-4">
+<h4 id="orgc8115bc"><span class="section-number-4">1.3.1</span> Las Vegas and Monte Carlo</h4>
 <div class="outline-text-4" id="text-1-3-1">
 <ul class="org-ul">
 <li>An Alg is <b>Las Vegas</b> if
@@ -361,8 +375,8 @@ random choice</li>
 </div>
 </div>
 
-<div id="outline-container-org6a41377" class="outline-2">
-<h2 id="org6a41377"><span class="section-number-2">2</span> Itai-Rodeh election algorithm</h2>
+<div id="outline-container-org9f19bfa" class="outline-2">
+<h2 id="org9f19bfa"><span class="section-number-2">2</span> Itai-Rodeh election algorithm</h2>
 <div class="outline-text-2" id="text-2">
 <ul class="org-ul">
 <li>adaptation of Chang-Roberts</li>
@@ -377,8 +391,8 @@ random choice</li>
 </ul>
 </div>
 
-<div id="outline-container-orgea5f98f" class="outline-3">
-<h3 id="orgea5f98f"><span class="section-number-3">2.1</span> How it works</h3>
+<div id="outline-container-orgb9fc586" class="outline-3">
+<h3 id="orgb9fc586"><span class="section-number-3">2.1</span> How it works</h3>
 <div class="outline-text-3" id="text-2-1">
 <ul class="org-ul">
 <li>all initiators active in <b>round 0</b></li>
@@ -394,8 +408,8 @@ set to false</li>
 </ul>
 </div>
 
-<div id="outline-container-org7ae4520" class="outline-4">
-<h4 id="org7ae4520"><span class="section-number-4">2.1.1</span> Message Complexity</h4>
+<div id="outline-container-org2e96ffd" class="outline-4">
+<h4 id="org2e96ffd"><span class="section-number-4">2.1.1</span> Message Complexity</h4>
 <div class="outline-text-4" id="text-2-1-1">
 <ul class="org-ul">
 <li>O(NlogN)</li>
@@ -405,8 +419,8 @@ set to false</li>
 </div>
 </div>
 
-<div id="outline-container-org299200e" class="outline-2">
-<h2 id="org299200e"><span class="section-number-2">3</span> Echo Algorithm</h2>
+<div id="outline-container-orgcfaf59f" class="outline-2">
+<h2 id="orgcfaf59f"><span class="section-number-2">3</span> Echo Algorithm</h2>
 <div class="outline-text-2" id="text-3">
 <ul class="org-ul">
 <li>All processes know the network size N</li>
@@ -433,8 +447,8 @@ set to false</li>
 </ul>
 </div>
 
-<div id="outline-container-org26e61d6" class="outline-3">
-<h3 id="org26e61d6"><span class="section-number-3">3.1</span> Pitfalls</h3>
+<div id="outline-container-org095c9c2" class="outline-3">
+<h3 id="org095c9c2"><span class="section-number-3">3.1</span> Pitfalls</h3>
 <div class="outline-text-3" id="text-3-1">
 <p>
 if a wave completes before covering whole network and advances to next round,
@@ -446,11 +460,130 @@ message from possible leader form previous round will be discarded
 </ul>
 </div>
 </div>
+
+<div id="outline-container-org482b10e" class="outline-3">
+<h3 id="org482b10e"><span class="section-number-3">3.2</span> Computing the size of the network</h3>
+<div class="outline-text-3" id="text-3-2">
+<ul class="org-ul">
+<li>there is no Las Vegas algorithm to compute size of an anonymous ring</li>
+<li>Hence it is impossible to have a Las Vegas election algorithm if processes
+do not know network size</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-org65d20ac" class="outline-2">
+<h2 id="org65d20ac"><span class="section-number-2">4</span> Itai-Rodeh ring size algorithm</h2>
+<div class="outline-text-2" id="text-4">
+<ul class="org-ul">
+<li>Each process p maintains an estimate (<b>est<sub>p</sub></b>) of the ring size</li>
+<li>initially est<sub>p</sub> = 2</li>
+<li>p initiates an estimate round at:
+<ul class="org-ul">
+<li>start on an alg run</li>
+<li>at each update of est<sub>p</sub></li>
+</ul></li>
+<li>Each round, p selects random id<sub>p</sub> in \({1, .., R}\) sends <b>(est<sub>p</sub>, id<sub>p</sub>, 1)</b>
+<ul class="org-ul">
+<li>hc = hopcount</li>
+<li>p waits for a message <b>(est, id, hc)</b>
+<ul class="org-ul">
+<li>always hc &lt; est</li>
+</ul></li>
+</ul></li>
+<li>Every note <b>will</b> have the same estimate at the end of algorithm run</li>
+</ul>
+</div>
+
+<div id="outline-container-orgf2be076" class="outline-3">
+<h3 id="orgf2be076"><span class="section-number-3">4.1</span> How it works</h3>
+<div class="outline-text-3" id="text-4-1">
+<ul class="org-ul">
+<li>est &lt; est<sub>p</sub> P dismisses the message</li>
+<li>est &gt; est<sub>p</sub>
+<ul class="org-ul">
+<li>if h &lt; est p sends (est, id, h +1) and est<sub>p</sub> &lt;- est</li>
+<li>if h = est then est<sub>p</sub> &lt;- est + 1</li>
+</ul></li>
+<li>est = est<sub>p</sub>
+<ul class="org-ul">
+<li>if h &lt; est, then p sends (est, id, h+1)</li>
+<li>if h = est and id != id<sub>p</sub> then est<sub>p</sub> &lt;- est + 1</li>
+<li>if h = est and id = id<sub>p</sub> then p dismisses the message (possibly its own message returned)</li>
+</ul></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org2059153" class="outline-3">
+<h3 id="org2059153"><span class="section-number-3">4.2</span> Pitfalls</h3>
+<div class="outline-text-3" id="text-4-2">
+<ul class="org-ul">
+<li>since it is a Monte Carlo algorithm it can result in est &lt; N at the end of
+run</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgcd5333c" class="outline-3">
+<h3 id="orgcd5333c"><span class="section-number-3">4.3</span> Complexity</h3>
+<div class="outline-text-3" id="text-4-3">
+<ul class="org-ul">
+<li>The prob of computing an incorrect size thends to 0 as R tends to infinity</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgea3373b" class="outline-2">
+<h2 id="orgea3373b"><span class="section-number-2">5</span> Leader Election in unknown <b>acyclic</b> network</h2>
+<div class="outline-text-2" id="text-5">
+<ul class="org-ul">
+<li>A tree algorithm is used</li>
+<li>Networks containing a <b>cycle</b> result in a time-out
+<ul class="org-ul">
+<li>Tree algorithm results in deadlock in cyclic networks</li>
+</ul></li>
+</ul>
+</div>
+<div id="outline-container-org232ae0b" class="outline-3">
+<h3 id="org232ae0b"><span class="section-number-3">5.1</span> How it works</h3>
+<div class="outline-text-3" id="text-5-1">
+<ul class="org-ul">
+<li>When a process has one possible parent it sends a <b>parent request</b> to its neighbour
+<ul class="org-ul">
+<li>if request accepted an <b>ack</b> is sent back</li>
+</ul></li>
+<li>Last 2 parentless processes can send parent requests to each other.
+<ul class="org-ul">
+<li><b>Root contention</b></li>
+</ul></li>
+<li>Each process in root contention randomly decides to
+<ul class="org-ul">
+<li>(a) <i>wait some time</i> for a parent request from the other process</li>
+<li>(b) <i>immediately</i> send a parent request again</li>
+</ul></li>
+<li>node which waited becomes the leader of network</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgc39280d" class="outline-3">
+<h3 id="orgc39280d"><span class="section-number-3">5.2</span> Interesting note</h3>
+<div class="outline-text-3" id="text-5-2">
+<ul class="org-ul">
+<li>During root contention it is better to give higher probability to sending
+again rather than to waiting
+<ul class="org-ul">
+<li><b>Highly dependant on the network condition</b></li>
+</ul></li>
+</ul>
+</div>
+</div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Marijan Gradecak</p>
-<p class="date">Created: 2018-04-25 Wed 16:18</p>
+<p class="date">Created: 2018-04-25 Wed 17:09</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

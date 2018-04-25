@@ -1,0 +1,179 @@
+#+SETUPFILE: theme.setup
+* Election Algorithms
+  - Leader process to coordinate distributed task
+  - Each election computation should *terminate* in a configuration where *1
+    process* is leader
+** Assumptions
+   - The algorithm is *decentralised*
+   - All processes have the same local
+   - Process id's are *unique* and *totally ordered*
+
+** Chang-Roberts algorithm
+   - Directed ring
+   - only initiators are *active* and send message with their id's
+*** How it works
+    Let active process P receive message Q
+    - if Q < P  : dismisses message
+    - if Q > P  : P becomes *passive* and passes on the message
+    - if Q == P : P becomes the *leader
+*** Complexity
+    - Worst case O(N^2)
+
+** Franklin Algorithm
+    - Consider *Undirected Ring*
+*** How it works:
+    - Each process P compares its id with id of active neighbours
+    - if a neighbour has a larder id then P becomes passive
+    - Each round an active process P:
+      - sends its id to its neighbours
+      - receives ids from Q and R
+        - if max(q,r) <
+*** Features
+    - Always takes 2 rounds if ID's are *sorted*
+    - for N=4 takes 3 rounds if largest id and second largest are on opposite
+      sides of ring
+
+*** Adapting Franklin to directed ring (Dolev-Klawe-Rodeh algorithm):
+    - Consider a directed ring
+    - the comparison of an active process P and its nearest active neighbours q
+      and r is performed at r
+    - --> s --> q --> p --> r -->t -->
+      - if max(q,r) < p then r chagnes its id to p and sends out p
+      - if max (q,r) > p r becomes passive
+      - if max(q,r) = p then r announces this id to all processes
+      - the process which originally had the id becomes the leader
+
+
+** Acyclic Networks
+   - Start with *wake-up phase* driven by initiators
+     - initially, initiators send wake up messages to neighbours
+     - when non-init receives first wake up message sends wake-up message to neighbours
+
+   - P waits until it has received ID from all neighbours except 1
+   - P computes max(ID) from its received ID and its own
+   - P sends a parent request to its parent tagged with max_p (max id of subnet)
+   - if p recieves a parent request from its parent, tagged with q it computes
+     max'_p being the maximum of max_p and q
+   - next p sends an info message to all neighburs except parent tagged with max'_p
+   - info message is forwarded to network
+   - process with max'_p is the *leader*
+** Echo algorithm (with extinction)
+   - each initiator starts a wave, tagged with its id
+   - non initiators join first wave that hits them
+   - if a process p in wave q is hit by wave r
+     - if q < r then p changes to wave r
+     - if q > r then p continues with wave q
+     - if q = r then incoming msg is treated according to regular echo algorithm
+
+*** Worst case complexity
+    O(N * E)
+
+* Minimum Spanning Trees (MST)
+  - Consider an *undirected*, *weighted* network.
+  - In the MST the sum of the weights of the edges in the spanning tree is minimal
+
+** Lemma:
+   - let F be a *fragment* (a connected subgraph of the MST M)
+   - let e be the /lowest weight/ *outgoing* edge of F (e has exactly one endpoint F)
+   - then e is in M
+
+  - M U {e} has a cycle containing e and another oudgoing edge f of F
+  - Replacing f by e in M gives a spanning tree
+
+** Gallager-Humblet-Spira Algorithm
+   - Consider *undirected*, *weighted* network
+
+     - Initially, each process forms a separate fragment
+     - the processes in fragment F together search for the lowest-weight
+       outgoing edge e_F
+     - when e_F has been found, the fragment at the other end is asked to
+       collaborate in merge
+
+*** Complications
+    - is the edge outgoing?
+    - is it the lowest-weight
+
+*** Level, name and core edge:
+    Each fragment carries a (unique) *name* fn : R and a *level* l : N
+
+    its level is the maximum number of joins any process in the fragment has
+    experienced
+
+    - Neighbouring fragments $F = (fn,l)$ and $F'=(fn', l')$ can be joined as
+      follows:
+
+ $l<l' ^ F--e_F-->F': F U F' = (fn', l)$ \\
+ $l = l' ^ e_F = e_F': F U F' = weight(e_F, l+1$
+
+   - Paramaters of a process:
+     - *sleep* (for noninitiators)
+     - *find* (looking for lowest-weight outgoing edge)
+     - *found* (reported a lowest-weight outgoing edge to core edge)
+
+   - Status of a channel:
+     - *basic edge* (undecided)
+     - *branch edge* (in the spanning tree)
+     -
+*** Initialisation
+   - Non-initiators  wake up when they recieve a (*connect* or *test*) msg
+
+   - Each initiator and non-initiator
+
+*** Joining two fragments
+    Let fragments $F = (fn,l)$ and $F'=(fn', l')$ be joined ia channel $pq$
+
+    - if $l < l'$ then p sent <connect, l> to q
+      - q sends $<initiate, fn', l', find/found>$ to p
+      - $F U F'$ inherits the core edge of F'
+
+    - if $l == l'$ then p and q sent $<connect,l>$ to each other
+      - They send $<initiate, weight pq, l+1, find> to each other
+      - $F U F'$ gets core edge pq
+
+    - At the reception of $<initiate, fn, l, find/found> a process stores fn and
+      l sets its state to find or found and adopts the sender as its *parent*
+
+    - it passes on the message through its other *branch* edges
+
+*** Computing the lowest-weight outgoing edge
+    - In the case of $<initiate, fn, l, find> p checks in increasing order of
+      weight if one of its basic eges pq is outgoing, by sending <test, fn, l> to
+      q
+    - while $l > level_q$ q postpones processing the incoming *test* message
+
+    - let $l <= level_q$
+      - if q is in fragment fn, then q replies reject in this case p and q will set pq to rejected
+      - Else q replies accept
+
+    - When a basic edge is accepted, or there are no basic edges left p stops the
+      search
+*** Reporting to core nodes
+    - p waits for all its branch edges, except its parent, to report
+    - p sets its state to found
+    - p computes the minimum \lambda of (1) these reports, and (2) the weight of
+      its lowest-weight outgoing basic edge (or \infty if no such channel is found)
+
+    - if $\lambda < \infty$ p stores either branch edge that sent \lambda or ...
+
+*** Termination or changeroot at the core nodes
+    a core node recieves reports throguh all its branch edges including the core edge
+    - if the min reported value u = \infty, the core nodes terminate
+    - if u < \infty the core node that recieved u first sends chngeroot
+      towards the lowest-weight ougoing basic edge
+    - The core edge becomes regular tree edge
+
+    - Ultimately changeroot reaches the process p that reported the lowest-weight
+
+
+*** TODO Starting the join of two fragments
+    - when q receives $<connect, level_p>$ from p, $level_q >= level_p$
+      - namely either level_p =0 or q earlier sent *accept* to p
+
+    - if $level_q > level_p$ then q sets qp to *branch* and sends
+      - <initiate, name_q, level_q, $find/found$> to p
+    - as long as level_q == level_p and *qp isnt a branch edge* q postpones
+      processing the connect msg
+
+    - if level_q = level_p and qp is a branch edge (meaning that q sent
+      <connect, level_q> to p) then q sends <initiate, weight qp, level_q + 1,
+      find> to p (and vice versa)

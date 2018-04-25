@@ -1,0 +1,72 @@
+#+SETUPFILE: theme.setup
+#+TITLE: Elections in Anonymous Networks
+* Elections in anonymous networks
+  - anonymous networks are networks in which processes *do not* have unique id's
+    - storing id's too expensive
+    - processes do not wish to reveal ids'
+    - absence of unique hardware ids
+
+  - If one is a leader, how can each process be provided with a unique id
+    - wave algorithm, pass around token each process increments token value by 1
+      and uses it as id
+
+** Pitfalls of elections
+   - Anonymous network elections not always terminating
+
+** Fairness
+   - if an event E can occur it is never ignored infinitely many times
+
+** Probabilistic algorithms
+   - in a probabilistic algorithm a process may performed an even based on a
+     random choice
+
+*** Las Vegas and Monte Carlo
+    - An Alg is *Las Vegas* if
+      - the probability that it terminates is greater than 0
+      - all terminal configs are correct
+    - An Alg is *Monte Carlo* if
+      - it always terminates
+      - the probability that a terminal config is correct is > 0
+
+* Itai-Rodeh election algorithm
+  - adaptation of Chang-Roberts
+  - All processes know the right size N
+  - Each initiator selects a *random id* from ${1, ..., N}$
+  - Processes may select the same id
+    - each message is tagged with hop count
+    - message arriving at source has hop count N
+    - if multiple processes select same largest id they start a new round
+
+** How it works
+   - all initiators active in *round 0*
+   - let p be /active/ at the start of *election round* n
+   - p randomly selects id_{p}
+     - sends (n, id_{p}, 1 false) and waits for message (n', i, h b)
+     - 3rd value is the hop count
+     - 4th value signals if another process q with the same id was encountered
+   - P only becomes leader if it receives its id after N hops with dirty bit
+     set to false
+
+*** Message Complexity
+    - O(NlogN)
+
+* Echo Algorithm
+  - All processes know the network size N
+  - initiators active in *round 0*
+  - Each proc selects random id and starts a wave
+    - tagged with *id* and *round counter*
+  - let proc p in wave i of round n be hit by wave j or round n'
+    - if n' > n or n' = n and j>i
+      - p adopts wave of j according to echo algorithm
+    - if n' < n or n' = n and j <i
+      - p discards wave of j according to echo algorithm
+  - Each message sent upwards in constructed tree reports size of sub-tree
+  - All other messages report 0
+  - When proc p decided it computes the size of constructed tree.
+  - if computed size is not equal to N. wave did not complete
+
+** Pitfalls
+   if a wave completes before covering whole network and advances to next round,
+   message from possible leader form previous round will be discarded
+
+   - Don't need to be largest id in the network to progress to next round

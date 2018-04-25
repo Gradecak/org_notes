@@ -21,7 +21,9 @@
            var listing = JSON.parse(this.responseText);
            for(var i in listing){
 
-             if(listing[i].type == "file" && listing[i].name != "index.html"){
+             if(listing[i].type == "file" &&
+                listing[i].name != "index.html" &&
+                listing[i].name.split('.').pop() == "html"){
                link = document.createElement("li");
                link.innerHTML = '<a href="/org_notes/' + listing[i].path + '">' + listing[i].name +'</a>'
                list.appendChild(link)

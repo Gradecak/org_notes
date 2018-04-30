@@ -1,0 +1,143 @@
+#+SETUPFILE: theme.setup
+#+TITLE: Fault Tolerance
+
+* Consensus
+** Crashing
+  - a process may *crash* i.e. processes no further events
+  - the network is *complete*
+    - there is a bi-directional channel between each pair of processes
+  - Crashing of processes can't be observed
+
+** Binary Consensus
+   - initially all processes randomly select 0 or 1
+   - Eventually all correct processes uniformly decide 0 or 1
+   - Not concerned with trivial consensus solutions (i.e. all processes pick 1)
+
+** K-crash consensus
+    - at most k processes may crash
+    - Each 1-crash consensus algorithm has a *bivalent* initial configuration
+      due to validity
+      - bivalent = can compute both decisions
+
+*** b-potent set of processes
+    - a set S of processes is called *b-potent*, if by executing events at
+      processes in S, some process in S can decide b
+
+*** Impossibility of 1-crash consensus
+    - No algorithm for 1-crash consensus always terminates
+    - Each bivalent configuration has a transition to a bivalent configuration
+      - Hence each bivalent initial configuration yields an infinite computation
+
+*** Q: why is there no Las Vegas algorithm for (N-1)-crash consensus
+    - process has to cope with fact that every other process crashes
+      - Each process must be able to decide by itself
+    - If communication is very slow, eventually each alive process may decide
+      for its own value (thinking that other processes have crashed)
+
+*** There is no Las-Vegas algorithm for k-crash consensus
+    - *where k = N/2*
+    - Suppose such algorithm exists
+    - Divide the set of processes in S and T
+    - Suppose all processes in S select 0 T select 1
+    - Suppose processes between S ans T are very slow
+    - at some point the processes in S assume processes in T all crashed and
+      decides 0
+    - Likewise all processes in T assume that S crashed and decide 1
+
+** Bracha-Toueg crash consensus
+   - let k = N/2
+   - each alive process selects 0 or 1 with *weight* = 1
+   - in *round n* each alive, undecided process p:
+     - p sends <n, value_p, weight_p> to all processes (including itself)
+     - p waits until $N-k$ messages <n,b,w> have arrived
+       - dismiss earlier round messages
+       - store future round messages
+     - if w > N/2 for an <n,b,w> then value_p \leftarrow b (this b is unique)
+     - else:
+       - value_p \leftarrow = 0 if most messages voted 0,
+       - value_p \leftarrow = 1 otherwise
+       - weight_p \leftarrow the number of incoming votes for value_p in round n
+     - if w > N/2 for > k incoming messages <n,b,w> then p *decides* b
+       - Every process guaranteed to receive w >N/2 vote
+* Failure Detection
+  - a failure detector (FD) at a process keeps track of which processes may have
+    crashed
+  - given an *upper bound on network latency* and *heartbeat messages* one can
+    implement a failure detector
+  - with failure detector impossibility of 1-crash consensus no longer applies
+
+** Detection
+   - Assume time domain with total order
+     - F(t) is set of crashed processes at time t
+     - t_1 < t_2 => $F(t_1) \subseteq F(t_2)$
+   - Assumption: Processes cant observe F(t)
+   - H(p,t) is the set of process's that p *suspects* to be crashed at time t
+   - Each computation has
+     - a *failure pattern* F
+     - a *failure detector history* H
+
+** Strongly Accurate failure detector
+   - A failure detector is *strongly accurate* if only crashed processes are
+     every suspected
+   - Assumptions:
+     - Each alive proc broadcasts *alive* every v time units
+     - d_{max} is a known upper bound on network latency
+   - process is assumed crashed if time since $last\_heartbeat > v+d_{max}$
+   - this failure detector is /complete/ and /strongly accurate/
+
+** Weakly Accurate FD
+   - a FD is *weakly accurate* if some process is never suspected by any process
+   - Assume a complete and weakly accurate fd
+   - We give a *rotating coordinator* algorithm for (N-1)-crash consensus
+
+** Consensus with Weakly Accurate FD
+   - processes are numbered p_0 ... p_{N-1}
+   - *initially* each process randomly selects 0 or 1
+   - in *round n*:
+     - p_n is coordinator
+     - p_n (if not crashed) broadcasts its value
+     - each process waits
+       - either for an incoming message from p_n in which case it takes on value
+         p_n
+       - or until it suspects that p_n has crashes
+     - after round N-1 each process *decides* for its value
+
+   - After round j all correct processes have the same value b
+   - Hence after round N-1 all correct processes decide b
+
+** Eventually Strongly Accurate FD
+   - a fd is *eventually strongly accurate* if
+     - from some time onward only crashed processes are suspected
+     - i.e. after time t no false positives
+   - this fd is /complete/ and /eventually strongly accurate/
+
+*** Assumptions
+    - each correct process broadcasts *alive* every $v$ time units
+    - There is an *unknown* upper bound on network latency
+
+*** Workings
+    - Each process q initially guesses $d_q = 1$ as network latency
+    - if q receives no message from p for $v+d_q$ time units then q suspects that
+      p has crashed
+    - if q receives from a suspected process p then p is no longer suspected and
+      $d_q = d_q + 1$
+
+** Chandra-Toueg k-crash consensus
+   - A fd that is *eventually weakly accurate* if from some time, some process
+     is never suspected
+   - Each process q records the last round $lu_q$ in which it update value_q
+   - Initially, $value_q \in {0,1}$ and $lu_q = -1$
+   - Processes are number: p_0 .. p_N-1
+   - Round n is coordinated by p_c with $c =n{}mod{}N$
+
+*** Workings
+    - in round n, each alive process q sends <vote, n, value_q, lu_q> to p_c
+    - p_c if alive waits until N-k messages arrived and selects one, say
+      <vote,n,b,l>
+      - with l as large as possible
+    - Each alive process q waits:
+      - either until <value, n,b> arrives then value_q = b, lu_q = n
+      - or until it suspects p_c crashed then q sends <nack, n> to p_c
+    - if p_c receives > k messages <ack,n> then p_c *decides* b and broadcasts
+      <decide,b>
+    - an undecided process that receives <decided,b> decides b

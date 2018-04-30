@@ -3,10 +3,10 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2018-04-30 Mon 13:21 -->
+<!-- 2018-04-30 Mon 14:59 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Election Algorithms</title>
+<title>Fault Tolerance</title>
 <meta name="generator" content="Org mode" />
 <meta name="author" content="Marijan Gradecak" />
 <style type="text/css">
@@ -262,40 +262,41 @@ for the JavaScript code in this tag.
 </head>
 <body>
 <div id="content">
-<h1 class="title">Election Algorithms</h1>
+<h1 class="title">Fault Tolerance</h1>
 <div id="table-of-contents">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org0165149">1. Cyclic Networks</a>
+<li><a href="#org14adca4">1. Consensus</a>
 <ul>
-<li><a href="#org6f4a424">1.1. Assumptions</a></li>
-<li><a href="#org07fd43d">1.2. Chang-Roberts (Directed Ring)</a>
+<li><a href="#org6bfa2af">1.1. Crashing</a></li>
+<li><a href="#orgb62b93e">1.2. Binary Consensus</a></li>
+<li><a href="#org7d1a251">1.3. K-crash consensus</a>
 <ul>
-<li><a href="#org8703ef6">1.2.1. (active) P receives msg q</a></li>
-<li><a href="#org9ed876d">1.2.2. Complexity</a></li>
+<li><a href="#orge7e44cb">1.3.1. b-potent set of processes</a></li>
+<li><a href="#org8f4e591">1.3.2. Impossibility of 1-crash consensus</a></li>
+<li><a href="#orgfc772bc">1.3.3. Q: why is there no Las Vegas algorithm for (N-1)-crash consensus</a></li>
+<li><a href="#org665c2e3">1.3.4. There is no Las-Vegas algorithm for k-crash consensus</a></li>
 </ul>
 </li>
-<li><a href="#org9024a13">1.3. Franklin's (Underacted Ring)</a>
-<ul>
-<li><a href="#org0acf42b">1.3.1. Round Structure</a></li>
-<li><a href="#org1e7f61b">1.3.2. Complexity</a></li>
-<li><a href="#org262b06c">1.3.3. <span class="todo TODO">TODO</span> Give an example with N = 4 that takes 3 rounds</a></li>
-<li><a href="#org78c0ed8">1.3.4. <span class="todo TODO">TODO</span> Show that for any N there is a ring that takes 2 rounds</a></li>
+<li><a href="#org9c31629">1.4. Bracha-Toueg crash consensus</a></li>
 </ul>
 </li>
-<li><a href="#org6f873dc">1.4. Dolev-Klawe-Rodeh (Directed Ring)</a>
+<li><a href="#org53a2c1f">2. Failure Detection</a>
 <ul>
-<li><a href="#orga29749b">1.4.1. How it works</a></li>
+<li><a href="#org74fed0b">2.1. Detection</a></li>
+<li><a href="#org1c590ec">2.2. Strongly Accurate failure detector</a></li>
+<li><a href="#org5164180">2.3. Weakly Accurate FD</a></li>
+<li><a href="#orgcbe0ac9">2.4. Consensus with Weakly Accurate FD</a></li>
+<li><a href="#orgc199e3a">2.5. Eventually Strongly Accurate FD</a>
+<ul>
+<li><a href="#org15af8cc">2.5.1. Assumptions</a></li>
+<li><a href="#org833893e">2.5.2. Workings</a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li><a href="#orgc1d6bde">2. Acyclic Networks</a>
+<li><a href="#orgb0c0e69">2.6. Chandra-Toueg k-crash consensus</a>
 <ul>
-<li><a href="#orgfff4c15">2.1. Tree Election</a>
-<ul>
-<li><a href="#org1f30392">2.1.1. Actions at awake process p</a></li>
+<li><a href="#org6cd07b9">2.6.1. Workings</a></li>
 </ul>
 </li>
 </ul>
@@ -304,179 +305,285 @@ for the JavaScript code in this tag.
 </div>
 </div>
 
-<div id="outline-container-org0165149" class="outline-2">
-<h2 id="org0165149"><span class="section-number-2">1</span> Cyclic Networks</h2>
+<div id="outline-container-org14adca4" class="outline-2">
+<h2 id="org14adca4"><span class="section-number-2">1</span> Consensus</h2>
 <div class="outline-text-2" id="text-1">
 </div>
-<div id="outline-container-org6f4a424" class="outline-3">
-<h3 id="org6f4a424"><span class="section-number-3">1.1</span> Assumptions</h3>
+<div id="outline-container-org6bfa2af" class="outline-3">
+<h3 id="org6bfa2af"><span class="section-number-3">1.1</span> Crashing</h3>
 <div class="outline-text-3" id="text-1-1">
 <ul class="org-ul">
-<li>All processes have the same local algorithm</li>
-<li>the algorithm is <i>decentralised</i></li>
-<li>Process ID's are <i>unique</i> and form a <i>totally ordered</i> set</li>
+<li>a process may <b>crash</b> i.e. processes no further events</li>
+<li>the network is <b>complete</b>
+<ul class="org-ul">
+<li>there is a bi-directional channel between each pair of processes</li>
+</ul></li>
+<li>Crashing of processes can't be observed</li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org07fd43d" class="outline-3">
-<h3 id="org07fd43d"><span class="section-number-3">1.2</span> Chang-Roberts (Directed Ring)</h3>
+<div id="outline-container-orgb62b93e" class="outline-3">
+<h3 id="orgb62b93e"><span class="section-number-3">1.2</span> Binary Consensus</h3>
 <div class="outline-text-3" id="text-1-2">
 <ul class="org-ul">
-<li>Initially only initiators are <b>active</b> and send msg with their id's</li>
-<li>Passive processes (including non initiators) only pass on the messages</li>
-</ul>
-</div>
-
-<div id="outline-container-org8703ef6" class="outline-4">
-<h4 id="org8703ef6"><span class="section-number-4">1.2.1</span> (active) P receives msg q</h4>
-<div class="outline-text-4" id="text-1-2-1">
-<ul class="org-ul">
-<li>if \(q < p\) &rarr; p dismisses the message</li>
-<li>if \(q > p\) &rarr; p becomes <b>passive</b> and forwards the msg</li>
-<li>if \(q = p\) &rarr; p becomes the leader (msg has travelled all the way
-around)</li>
+<li>initially all processes randomly select 0 or 1</li>
+<li>Eventually all correct processes uniformly decide 0 or 1</li>
+<li>Not concerned with trivial consensus solutions (i.e. all processes pick 1)</li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org9ed876d" class="outline-4">
-<h4 id="org9ed876d"><span class="section-number-4">1.2.2</span> Complexity</h4>
-<div class="outline-text-4" id="text-1-2-2">
-<ul class="org-ul">
-<li>Worst-case msg complexity: \(O(N^2)\)</li>
-<li><p>
-Avg-case msg complexity: \(O(NlogN)\)
-</p>
-
-
-<div class="figure">
-<p><img src="./chang-roberts-example.png" alt="chang-roberts-example.png" width="600px" />
-</p>
-</div></li>
-</ul>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org9024a13" class="outline-3">
-<h3 id="org9024a13"><span class="section-number-3">1.3</span> Franklin's (Underacted Ring)</h3>
+<div id="outline-container-org7d1a251" class="outline-3">
+<h3 id="org7d1a251"><span class="section-number-3">1.3</span> K-crash consensus</h3>
 <div class="outline-text-3" id="text-1-3">
 <ul class="org-ul">
-<li>Each active process p compares its own id with id of 2 nearest neighbours</li>
-<li>if a neighbour has a larger id, p becomes passive</li>
-<li>Done in a number of rounds</li>
-<li>Passive processes pass on messages</li>
+<li>at most k processes may crash</li>
+<li>Each 1-crash consensus algorithm has a <b>bivalent</b> initial configuration
+due to validity
+<ul class="org-ul">
+<li>bivalent = can compute both decisions</li>
+</ul></li>
 </ul>
 </div>
 
-<div id="outline-container-org0acf42b" class="outline-4">
-<h4 id="org0acf42b"><span class="section-number-4">1.3.1</span> Round Structure</h4>
+<div id="outline-container-orge7e44cb" class="outline-4">
+<h4 id="orge7e44cb"><span class="section-number-4">1.3.1</span> b-potent set of processes</h4>
 <div class="outline-text-4" id="text-1-3-1">
 <ul class="org-ul">
-<li>In each round <b>active</b> process P:
-<ul class="org-ul">
-<li>Sends its id to its nearest neighbours</li>
-<li>Receives id's <b>Q</b> and <b>R</b>
-<ul class="org-ul">
-<li>if \(max(q,r) < p\), &rarr; p starts <b>new round</b> (survives to next round)</li>
-<li>if \(max(q,r) > p\), &rarr; p becomes <b>passive</b></li>
-<li>if \(max(q,r) = p\), &rarr; p becomes the <b>leader</b></li>
-</ul></li>
-</ul></li>
+<li>a set S of processes is called <b>b-potent</b>, if by executing events at
+processes in S, some process in S can decide b</li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org1e7f61b" class="outline-4">
-<h4 id="org1e7f61b"><span class="section-number-4">1.3.2</span> Complexity</h4>
+<div id="outline-container-org8f4e591" class="outline-4">
+<h4 id="org8f4e591"><span class="section-number-4">1.3.2</span> Impossibility of 1-crash consensus</h4>
 <div class="outline-text-4" id="text-1-3-2">
 <ul class="org-ul">
-<li>Worst-case msg complexity: \(O(NlogN)\)
+<li>No algorithm for 1-crash consensus always terminates</li>
+<li>Each bivalent configuration has a transition to a bivalent configuration
 <ul class="org-ul">
-<li>in each round at least half of the active processes becomes passive</li>
-</ul></li>
-<li>Each round takes \(2N\) messages</li>
-
-<li>Suppose ring is directed with clockwise orientation (id increasing
-clockwise)
-<ul class="org-ul">
-<li>If a process only compares its id with one of its predecessors it would
-take N rounds to complete</li>
+<li>Hence each bivalent initial configuration yields an infinite computation</li>
 </ul></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org262b06c" class="outline-4">
-<h4 id="org262b06c"><span class="section-number-4">1.3.3</span> <span class="todo TODO">TODO</span> Give an example with N = 4 that takes 3 rounds</h4>
+<div id="outline-container-orgfc772bc" class="outline-4">
+<h4 id="orgfc772bc"><span class="section-number-4">1.3.3</span> Q: why is there no Las Vegas algorithm for (N-1)-crash consensus</h4>
+<div class="outline-text-4" id="text-1-3-3">
+<ul class="org-ul">
+<li>process has to cope with fact that every other process crashes
+<ul class="org-ul">
+<li>Each process must be able to decide by itself</li>
+</ul></li>
+<li>If communication is very slow, eventually each alive process may decide
+for its own value (thinking that other processes have crashed)</li>
+</ul>
+</div>
 </div>
 
-<div id="outline-container-org78c0ed8" class="outline-4">
-<h4 id="org78c0ed8"><span class="section-number-4">1.3.4</span> <span class="todo TODO">TODO</span> Show that for any N there is a ring that takes 2 rounds</h4>
+<div id="outline-container-org665c2e3" class="outline-4">
+<h4 id="org665c2e3"><span class="section-number-4">1.3.4</span> There is no Las-Vegas algorithm for k-crash consensus</h4>
+<div class="outline-text-4" id="text-1-3-4">
+<ul class="org-ul">
+<li><b>where k = N/2</b></li>
+<li>Suppose such algorithm exists</li>
+<li>Divide the set of processes in S and T</li>
+<li>Suppose all processes in S select 0 T select 1</li>
+<li>Suppose processes between S ans T are very slow</li>
+<li>at some point the processes in S assume processes in T all crashed and
+decides 0</li>
+<li>Likewise all processes in T assume that S crashed and decide 1</li>
+</ul>
+</div>
 </div>
 </div>
 
-<div id="outline-container-org6f873dc" class="outline-3">
-<h3 id="org6f873dc"><span class="section-number-3">1.4</span> Dolev-Klawe-Rodeh (Directed Ring)</h3>
+<div id="outline-container-org9c31629" class="outline-3">
+<h3 id="org9c31629"><span class="section-number-3">1.4</span> Bracha-Toueg crash consensus</h3>
 <div class="outline-text-3" id="text-1-4">
 <ul class="org-ul">
-<li>Essentially Franklin's algorithm adapted to work on directed networks</li>
-</ul>
-</div>
-<div id="outline-container-orga29749b" class="outline-4">
-<h4 id="orga29749b"><span class="section-number-4">1.4.1</span> How it works</h4>
-<div class="outline-text-4" id="text-1-4-1">
+<li>let k = N/2</li>
+<li>each alive process selects 0 or 1 with <b>weight</b> = 1</li>
+<li>in <b>round n</b> each alive, undecided process p:
 <ul class="org-ul">
-<li>The comparison of id's of an active process p and its neighbours q and r is
-performed at r
+<li>p sends &lt;n, value<sub>p</sub>, weight<sub>p</sub>&gt; to all processes (including itself)</li>
+<li>p waits until \(N-k\) messages &lt;n,b,w&gt; have arrived
 <ul class="org-ul">
-<li>\(\rightarrow s \rightarrow q \rightarrow *p* \rightarrow r \rightarrow t \rightarrow\)</li>
+<li>dismiss earlier round messages</li>
+<li>store future round messages</li>
 </ul></li>
-<li>if \(max(q,r) < p\) then r <b>changes its id to p</b> and sends out p</li>
-<li>if \(max(q,r) > p\) then r becomes passive</li>
-<li>if \(max(q,r) = p\) then r <b>announces p</b> to all processes</li>
-<li>process that originally had p notices announcement and becomes the leader</li>
+<li>if w &gt; N/2 for an &lt;n,b,w&gt; then value<sub>p</sub> &larr; b (this b is unique)</li>
+<li>else:
+<ul class="org-ul">
+<li>value<sub>p</sub> &larr; = 0 if most messages voted 0,</li>
+<li>value<sub>p</sub> &larr; = 1 otherwise</li>
+<li>weight<sub>p</sub> &larr; the number of incoming votes for value<sub>p</sub> in round n</li>
+</ul></li>
+<li>if w &gt; N/2 for &gt; k incoming messages &lt;n,b,w&gt; then p <b>decides</b> b
+<ul class="org-ul">
+<li>Every process guaranteed to receive w &gt;N/2 vote</li>
+</ul></li>
+</ul></li>
 </ul>
 </div>
 </div>
 </div>
-</div>
-<div id="outline-container-orgc1d6bde" class="outline-2">
-<h2 id="orgc1d6bde"><span class="section-number-2">2</span> Acyclic Networks</h2>
+<div id="outline-container-org53a2c1f" class="outline-2">
+<h2 id="org53a2c1f"><span class="section-number-2">2</span> Failure Detection</h2>
 <div class="outline-text-2" id="text-2">
+<ul class="org-ul">
+<li>a failure detector (FD) at a process keeps track of which processes may have
+crashed</li>
+<li>given an <b>upper bound on network latency</b> and <b>heartbeat messages</b> one can
+implement a failure detector</li>
+<li>with failure detector impossibility of 1-crash consensus no longer applies</li>
+</ul>
 </div>
-<div id="outline-container-orgfff4c15" class="outline-3">
-<h3 id="orgfff4c15"><span class="section-number-3">2.1</span> Tree Election</h3>
+
+<div id="outline-container-org74fed0b" class="outline-3">
+<h3 id="org74fed0b"><span class="section-number-3">2.1</span> Detection</h3>
 <div class="outline-text-3" id="text-2-1">
 <ul class="org-ul">
-<li>Tree algorithms can be used to elect leader</li>
-<li>Start with a <b>wake-up</b> phase driven by initiators
+<li>Assume time domain with total order
 <ul class="org-ul">
-<li>send wake-up message to all neighbours</li>
-<li>when non-initiator receives first wake-up message it wakes up and sends a
-wake-up message to neighbours</li>
+<li>F(t) is set of crashed processes at time t</li>
+<li>t<sub>1</sub> &lt; t<sub>2</sub> =&gt; \(F(t_1) \subseteq F(t_2)\)</li>
+</ul></li>
+<li>Assumption: Processes cant observe F(t)</li>
+<li>H(p,t) is the set of process's that p <b>suspects</b> to be crashed at time t</li>
+<li>Each computation has
+<ul class="org-ul">
+<li>a <b>failure pattern</b> F</li>
+<li>a <b>failure detector history</b> H</li>
 </ul></li>
 </ul>
 </div>
-<div id="outline-container-org1f30392" class="outline-4">
-<h4 id="org1f30392"><span class="section-number-4">2.1.1</span> Actions at awake process p</h4>
-<div class="outline-text-4" id="text-2-1-1">
+</div>
+
+<div id="outline-container-org1c590ec" class="outline-3">
+<h3 id="org1c590ec"><span class="section-number-3">2.2</span> Strongly Accurate failure detector</h3>
+<div class="outline-text-3" id="text-2-2">
 <ul class="org-ul">
-<li>p waits until it receives id from all neighbours except 1
+<li>A failure detector is <b>strongly accurate</b> if only crashed processes are
+every suspected</li>
+<li>Assumptions:
 <ul class="org-ul">
-<li>the neighbour not waited for becomes p's parent <b>(parent<sub>p</sub>)</b></li>
+<li>Each alive proc broadcasts <b>alive</b> every v time units</li>
+<li>d<sub>max</sub> is a known upper bound on network latency</li>
 </ul></li>
-<li>p computes the largest id <b>(max<sub>p</sub>)</b> from the id's received and its own id</li>
-<li>p sends parent request to <b>parent<sub>p</sub></b> tagged with <b>max<sub>p</sub></b></li>
-<li>if p  receives a parent request from its parent, tagged with q, it computes max'<sub>p</sub>.
+<li>process is assumed crashed if time since \(last\_heartbeat > v+d_{max}\)</li>
+<li>this failure detector is <i>complete</i> and <i>strongly accurate</i></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org5164180" class="outline-3">
+<h3 id="org5164180"><span class="section-number-3">2.3</span> Weakly Accurate FD</h3>
+<div class="outline-text-3" id="text-2-3">
 <ul class="org-ul">
-<li>\(max'_p = max(max_p, q)\)</li>
+<li>a FD is <b>weakly accurate</b> if some process is never suspected by any process</li>
+<li>Assume a complete and weakly accurate fd</li>
+<li>We give a <b>rotating coordinator</b> algorithm for (N-1)-crash consensus</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgcbe0ac9" class="outline-3">
+<h3 id="orgcbe0ac9"><span class="section-number-3">2.4</span> Consensus with Weakly Accurate FD</h3>
+<div class="outline-text-3" id="text-2-4">
+<ul class="org-ul">
+<li>processes are numbered p<sub>0</sub> &#x2026; p<sub>N-1</sub></li>
+<li><b>initially</b> each process randomly selects 0 or 1</li>
+<li>in <b>round n</b>:
+<ul class="org-ul">
+<li>p<sub>n</sub> is coordinator</li>
+<li>p<sub>n</sub> (if not crashed) broadcasts its value</li>
+<li>each process waits
+<ul class="org-ul">
+<li>either for an incoming message from p<sub>n</sub> in which case it takes on value
+p<sub>n</sub></li>
+<li>or until it suspects that p<sub>n</sub> has crashes</li>
 </ul></li>
-<li>p sends information message to all neighbours (except parent) tagged with
-max'<sub>p</sub></li>
-<li>the information messages is forwarded through the network</li>
-<li>the process with id max'<sub>p</sub> becomes the <b>leader</b></li>
+<li>after round N-1 each process <b>decides</b> for its value</li>
+</ul></li>
+
+<li>After round j all correct processes have the same value b</li>
+<li>Hence after round N-1 all correct processes decide b</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgc199e3a" class="outline-3">
+<h3 id="orgc199e3a"><span class="section-number-3">2.5</span> Eventually Strongly Accurate FD</h3>
+<div class="outline-text-3" id="text-2-5">
+<ul class="org-ul">
+<li>a fd is <b>eventually strongly accurate</b> if
+<ul class="org-ul">
+<li>from some time onward only crashed processes are suspected</li>
+<li>i.e. after time t no false positives</li>
+</ul></li>
+<li>this fd is <i>complete</i> and <i>eventually strongly accurate</i></li>
+</ul>
+</div>
+
+<div id="outline-container-org15af8cc" class="outline-4">
+<h4 id="org15af8cc"><span class="section-number-4">2.5.1</span> Assumptions</h4>
+<div class="outline-text-4" id="text-2-5-1">
+<ul class="org-ul">
+<li>each correct process broadcasts <b>alive</b> every \(v\) time units</li>
+<li>There is an <b>unknown</b> upper bound on network latency</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org833893e" class="outline-4">
+<h4 id="org833893e"><span class="section-number-4">2.5.2</span> Workings</h4>
+<div class="outline-text-4" id="text-2-5-2">
+<ul class="org-ul">
+<li>Each process q initially guesses \(d_q = 1\) as network latency</li>
+<li>if q receives no message from p for \(v+d_q\) time units then q suspects that
+p has crashed</li>
+<li>if q receives from a suspected process p then p is no longer suspected and
+\(d_q = d_q + 1\)</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgb0c0e69" class="outline-3">
+<h3 id="orgb0c0e69"><span class="section-number-3">2.6</span> Chandra-Toueg k-crash consensus</h3>
+<div class="outline-text-3" id="text-2-6">
+<ul class="org-ul">
+<li>A fd that is <b>eventually weakly accurate</b> if from some time, some process
+is never suspected</li>
+<li>Each process q records the last round \(lu_q\) in which it update value<sub>q</sub></li>
+<li>Initially, \(value_q \in {0,1}\) and \(lu_q = -1\)</li>
+<li>Processes are number: p<sub>0</sub> .. p<sub>N</sub>-1</li>
+<li>Round n is coordinated by p<sub>c</sub> with \(c =n{}mod{}N\)</li>
+</ul>
+</div>
+
+<div id="outline-container-org6cd07b9" class="outline-4">
+<h4 id="org6cd07b9"><span class="section-number-4">2.6.1</span> Workings</h4>
+<div class="outline-text-4" id="text-2-6-1">
+<ul class="org-ul">
+<li>in round n, each alive process q sends &lt;vote, n, value<sub>q</sub>, lu<sub>q</sub>&gt; to p<sub>c</sub></li>
+<li>p<sub>c</sub> if alive waits until N-k messages arrived and selects one, say
+&lt;vote,n,b,l&gt;
+<ul class="org-ul">
+<li>with l as large as possible</li>
+</ul></li>
+<li>Each alive process q waits:
+<ul class="org-ul">
+<li>either until &lt;value, n,b&gt; arrives then value<sub>q</sub> = b, lu<sub>q</sub> = n</li>
+<li>or until it suspects p<sub>c</sub> crashed then q sends &lt;nack, n&gt; to p<sub>c</sub></li>
+</ul></li>
+<li>if p<sub>c</sub> receives &gt; k messages &lt;ack,n&gt; then p<sub>c</sub> <b>decides</b> b and broadcasts
+&lt;decide,b&gt;</li>
+<li>an undecided process that receives &lt;decided,b&gt; decides b</li>
 </ul>
 </div>
 </div>
@@ -485,7 +592,7 @@ max'<sub>p</sub></li>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Marijan Gradecak</p>
-<p class="date">Created: 2018-04-30 Mon 13:21</p>
+<p class="date">Created: 2018-04-30 Mon 14:59</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -70,14 +70,23 @@
      - send wake-up message to all neighbours
      - when non-initiator receives first wake-up message it wakes up and sends a
        wake-up message to neighbours
-** Actions at awake process p
-   - p waits until it receives id from all neighbours except 1
-     - the neighbour not waited for becomes p's parent *(parent_p)*
-   - p computes the largest id *(max_p)* from the id's received and its own id
-   - p sends parent request to *parent_p* tagged with *max_p*
-   - if p  receives a parent request from its parent, tagged with q, it computes max'_p.
-     - $max'_p = max(max_p, q)$
-   - p sends information message to all neighbours (except parent) tagged with
-     max'_p
-   - the information messages is forwarded through the network
-   - the process with id max'_p becomes the *leader*
+*** Actions at awake process p
+    - p waits until it receives id from all neighbours except 1
+      - the neighbour not waited for becomes p's parent *(parent_p)*
+    - p computes the largest id *(max_p)* from the id's received and its own id
+    - p sends parent request to *parent_p* tagged with *max_p*
+    - if p  receives a parent request from its parent, tagged with q, it computes max'_p.
+      - $max'_p = max(max_p, q)$
+    - p sends information message to all neighbours (except parent) tagged with
+      max'_p
+    - the information messages is forwarded through the network
+    - the process with id max'_p becomes the *leader*
+** Echo Algorithm
+   - Each initiator starts a *wave* tagged with its id's
+   - Non-initiators join the first wave that hits them
+   - Each process takes part in *at most* 1 wave
+*** Process p in wave q hit by wave r
+    - if $q < r$ \rightarrow p changes to wave r (abandons earlier messages)
+    - if $q > r$ \rightarrow p continues with wave q (dismisses wave r message)
+    - if $q = r$ \rightarrow incoming message is treated according to echo algorithm
+    - if wave p executes

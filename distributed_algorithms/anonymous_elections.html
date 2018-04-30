@@ -3,10 +3,10 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2018-04-30 Mon 13:00 -->
+<!-- 2018-04-30 Mon 13:05 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Election Algorithms</title>
+<title>Elections in Anonymous Networks</title>
 <meta name="generator" content="Org mode" />
 <meta name="author" content="Marijan Gradecak" />
 <style type="text/css">
@@ -262,219 +262,320 @@ for the JavaScript code in this tag.
 </head>
 <body>
 <div id="content">
-<h1 class="title">Election Algorithms</h1>
+<h1 class="title">Elections in Anonymous Networks</h1>
 <div id="table-of-contents">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgc5a4793">1. Cyclic Networks</a>
+<li><a href="#org186e482">1. Elections in anonymous networks</a>
 <ul>
-<li><a href="#org2b1bdeb">1.1. Assumptions</a></li>
-<li><a href="#orgb4d92ac">1.2. Chang-Roberts (Directed Ring)</a>
+<li><a href="#org35e68be">1.1. Pitfalls of elections</a></li>
+<li><a href="#org228a095">1.2. Fairness</a></li>
+<li><a href="#orgd33f95d">1.3. Probabilistic algorithms</a>
 <ul>
-<li><a href="#org09dd2f4">1.2.1. (active) P receives msg q</a></li>
-<li><a href="#orge3ff13a">1.2.2. Complexity</a></li>
-</ul>
-</li>
-<li><a href="#orga8bfc69">1.3. Franklin's (Underacted Ring)</a>
-<ul>
-<li><a href="#orga8f41b0">1.3.1. Round Structure</a></li>
-<li><a href="#orgc6fbbce">1.3.2. Complexity</a></li>
-<li><a href="#orgf2434c5">1.3.3. <span class="todo TODO">TODO</span> Give an example with N = 4 that takes 3 rounds</a></li>
-<li><a href="#orgd889080">1.3.4. <span class="todo TODO">TODO</span> Show that for any N there is a ring that takes 2 rounds</a></li>
-</ul>
-</li>
-<li><a href="#org69492ab">1.4. Dolev-Klawe-Rodeh (Directed Ring)</a>
-<ul>
-<li><a href="#org4802e32">1.4.1. How it works</a></li>
+<li><a href="#org3e4971a">1.3.1. Las Vegas and Monte Carlo</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org9e0d101">2. Acyclic Networks</a>
+<li><a href="#org3670634">2. Itai-Rodeh election algorithm</a>
 <ul>
-<li><a href="#orge46b8e8">2.1. Tree Election</a></li>
-<li><a href="#org2ab62c8">2.2. Actions at awake process p</a></li>
+<li><a href="#orgdbfd002">2.1. How it works</a>
+<ul>
+<li><a href="#org245254a">2.1.1. Message Complexity</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orga0b76a8">3. Echo Algorithm</a>
+<ul>
+<li><a href="#orge63fcae">3.1. Pitfalls</a></li>
+<li><a href="#orgabe369c">3.2. Computing the size of the network</a></li>
+</ul>
+</li>
+<li><a href="#org0e1c404">4. Itai-Rodeh ring size algorithm</a>
+<ul>
+<li><a href="#org2e0ecb7">4.1. How it works</a></li>
+<li><a href="#orgc3f5ef4">4.2. Pitfalls</a></li>
+<li><a href="#org98ae0bd">4.3. Complexity</a></li>
+</ul>
+</li>
+<li><a href="#orgff9e5e9">5. Leader Election in unknown <b>acyclic</b> network</a>
+<ul>
+<li><a href="#org65e71be">5.1. How it works</a></li>
+<li><a href="#org1220150">5.2. Interesting note</a></li>
 </ul>
 </li>
 </ul>
 </div>
+</div>
+<div id="outline-container-org186e482" class="outline-2">
+<h2 id="org186e482"><span class="section-number-2">1</span> Elections in anonymous networks</h2>
+<div class="outline-text-2" id="text-1">
+<ul class="org-ul">
+<li>anonymous networks are networks in which processes <b>do not</b> have unique id's
+<ul class="org-ul">
+<li>storing id's too expensive</li>
+<li>processes do not wish to reveal ids'</li>
+<li>absence of unique hardware ids</li>
+</ul></li>
+
+<li>If one is a leader, how can each process be provided with a unique id
+<ul class="org-ul">
+<li>wave algorithm, pass around token each process increments token value by 1
+and uses it as id</li>
+</ul></li>
+</ul>
 </div>
 
-<div id="outline-container-orgc5a4793" class="outline-2">
-<h2 id="orgc5a4793"><span class="section-number-2">1</span> Cyclic Networks</h2>
-<div class="outline-text-2" id="text-1">
-</div>
-<div id="outline-container-org2b1bdeb" class="outline-3">
-<h3 id="org2b1bdeb"><span class="section-number-3">1.1</span> Assumptions</h3>
+<div id="outline-container-org35e68be" class="outline-3">
+<h3 id="org35e68be"><span class="section-number-3">1.1</span> Pitfalls of elections</h3>
 <div class="outline-text-3" id="text-1-1">
 <ul class="org-ul">
-<li>All processes have the same local algorithm</li>
-<li>the algorithm is <i>decentralised</i></li>
-<li>Process ID's are <i>unique</i> and form a <i>totally ordered</i> set</li>
+<li>Anonymous network elections not always terminating</li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgb4d92ac" class="outline-3">
-<h3 id="orgb4d92ac"><span class="section-number-3">1.2</span> Chang-Roberts (Directed Ring)</h3>
+<div id="outline-container-org228a095" class="outline-3">
+<h3 id="org228a095"><span class="section-number-3">1.2</span> Fairness</h3>
 <div class="outline-text-3" id="text-1-2">
 <ul class="org-ul">
-<li>Initially only initiators are <b>active</b> and send msg with their id's</li>
-<li>Passive processes (including non initiators) only pass on the messages</li>
-</ul>
-</div>
-
-<div id="outline-container-org09dd2f4" class="outline-4">
-<h4 id="org09dd2f4"><span class="section-number-4">1.2.1</span> (active) P receives msg q</h4>
-<div class="outline-text-4" id="text-1-2-1">
-<ul class="org-ul">
-<li>if \(q < p\) &rarr; p dismisses the message</li>
-<li>if \(q > p\) &rarr; p becomes <b>passive</b> and forwards the msg</li>
-<li>if \(q = p\) &rarr; p becomes the leader (msg has travelled all the way
-around)</li>
+<li>if an event E can occur it is never ignored infinitely many times</li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orge3ff13a" class="outline-4">
-<h4 id="orge3ff13a"><span class="section-number-4">1.2.2</span> Complexity</h4>
-<div class="outline-text-4" id="text-1-2-2">
-<ul class="org-ul">
-<li>Worst-case msg complexity: \(O(N^2)\)</li>
-<li><p>
-Avg-case msg complexity: \(O(NlogN)\)
-</p>
-
-
-<div class="figure">
-<p><img src="./chang-roberts-example.png" alt="chang-roberts-example.png" width="600px" />
-</p>
-</div></li>
-</ul>
-</div>
-</div>
-</div>
-
-<div id="outline-container-orga8bfc69" class="outline-3">
-<h3 id="orga8bfc69"><span class="section-number-3">1.3</span> Franklin's (Underacted Ring)</h3>
+<div id="outline-container-orgd33f95d" class="outline-3">
+<h3 id="orgd33f95d"><span class="section-number-3">1.3</span> Probabilistic algorithms</h3>
 <div class="outline-text-3" id="text-1-3">
 <ul class="org-ul">
-<li>Each active process p compares its own id with id of 2 nearest neighbours</li>
-<li>if a neighbour has a larger id, p becomes passive</li>
-<li>Done in a number of rounds</li>
-<li>Passive processes pass on messages</li>
+<li>in a probabilistic algorithm a process may performed an even based on a
+random choice</li>
 </ul>
 </div>
 
-<div id="outline-container-orga8f41b0" class="outline-4">
-<h4 id="orga8f41b0"><span class="section-number-4">1.3.1</span> Round Structure</h4>
+<div id="outline-container-org3e4971a" class="outline-4">
+<h4 id="org3e4971a"><span class="section-number-4">1.3.1</span> Las Vegas and Monte Carlo</h4>
 <div class="outline-text-4" id="text-1-3-1">
 <ul class="org-ul">
-<li>In each round <b>active</b> process P:
+<li>An Alg is <b>Las Vegas</b> if
 <ul class="org-ul">
-<li>Sends its id to its nearest neighbours</li>
-<li>Receives id's <b>Q</b> and <b>R</b>
-<ul class="org-ul">
-<li>if \(max(q,r) < p\), &rarr; p starts <b>new round</b> (survives to next round)</li>
-<li>if \(max(q,r) > p\), &rarr; p becomes <b>passive</b></li>
-<li>if \(max(q,r) = p\), &rarr; p becomes the <b>leader</b></li>
+<li>the probability that it terminates is greater than 0</li>
+<li>all terminal configs are correct</li>
 </ul></li>
-</ul></li>
-</ul>
-</div>
-</div>
-
-<div id="outline-container-orgc6fbbce" class="outline-4">
-<h4 id="orgc6fbbce"><span class="section-number-4">1.3.2</span> Complexity</h4>
-<div class="outline-text-4" id="text-1-3-2">
+<li>An Alg is <b>Monte Carlo</b> if
 <ul class="org-ul">
-<li>Worst-case msg complexity: \(O(NlogN)\)
-<ul class="org-ul">
-<li>in each round at least half of the active processes becomes passive</li>
-</ul></li>
-<li>Each round takes \(2N\) messages</li>
-
-<li>Suppose ring is directed with clockwise orientation (id increasing
-clockwise)
-<ul class="org-ul">
-<li>If a process only compares its id with one of its predecessors it would
-take N rounds to complete</li>
+<li>it always terminates</li>
+<li>the probability that a terminal config is correct is &gt; 0</li>
 </ul></li>
 </ul>
 </div>
 </div>
-
-<div id="outline-container-orgf2434c5" class="outline-4">
-<h4 id="orgf2434c5"><span class="section-number-4">1.3.3</span> <span class="todo TODO">TODO</span> Give an example with N = 4 that takes 3 rounds</h4>
-</div>
-
-<div id="outline-container-orgd889080" class="outline-4">
-<h4 id="orgd889080"><span class="section-number-4">1.3.4</span> <span class="todo TODO">TODO</span> Show that for any N there is a ring that takes 2 rounds</h4>
 </div>
 </div>
 
-<div id="outline-container-org69492ab" class="outline-3">
-<h3 id="org69492ab"><span class="section-number-3">1.4</span> Dolev-Klawe-Rodeh (Directed Ring)</h3>
-<div class="outline-text-3" id="text-1-4">
-<ul class="org-ul">
-<li>Essentially Franklin's algorithm adapted to work on directed networks</li>
-</ul>
-</div>
-<div id="outline-container-org4802e32" class="outline-4">
-<h4 id="org4802e32"><span class="section-number-4">1.4.1</span> How it works</h4>
-<div class="outline-text-4" id="text-1-4-1">
-<ul class="org-ul">
-<li>The comparison of id's of an active process p and its neighbours q and r is
-performed at r
-<ul class="org-ul">
-<li>\(\rightarrow s \rightarrow q \rightarrow *p* \rightarrow r \rightarrow t \rightarrow\)</li>
-</ul></li>
-<li>if \(max(q,r) < p\) then r <b>changes its id to p</b> and sends out p</li>
-<li>if \(max(q,r) > p\) then r becomes passive</li>
-<li>if \(max(q,r) = p\) then r <b>announces p</b> to all processes</li>
-<li>process that originally had p notices announcement and becomes the leader</li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-<div id="outline-container-org9e0d101" class="outline-2">
-<h2 id="org9e0d101"><span class="section-number-2">2</span> Acyclic Networks</h2>
+<div id="outline-container-org3670634" class="outline-2">
+<h2 id="org3670634"><span class="section-number-2">2</span> Itai-Rodeh election algorithm</h2>
 <div class="outline-text-2" id="text-2">
+<ul class="org-ul">
+<li>adaptation of Chang-Roberts</li>
+<li>All processes know the right size N</li>
+<li>Each initiator selects a <b>random id</b> from \({1, ..., N}\)</li>
+<li>Processes may select the same id
+<ul class="org-ul">
+<li>each message is tagged with hop count</li>
+<li>message arriving at source has hop count N</li>
+<li>if multiple processes select same largest id they start a new round</li>
+</ul></li>
+</ul>
 </div>
-<div id="outline-container-orge46b8e8" class="outline-3">
-<h3 id="orge46b8e8"><span class="section-number-3">2.1</span> Tree Election</h3>
+
+<div id="outline-container-orgdbfd002" class="outline-3">
+<h3 id="orgdbfd002"><span class="section-number-3">2.1</span> How it works</h3>
 <div class="outline-text-3" id="text-2-1">
 <ul class="org-ul">
-<li>Tree algorithms can be used to elect leader</li>
-<li>Start with a <b>wake-up</b> phase driven by initiators
+<li>all initiators active in <b>round 0</b></li>
+<li>let p be <i>active</i> at the start of <b>election round</b> n</li>
+<li>p randomly selects id<sub>p</sub>
 <ul class="org-ul">
-<li>send wake-up message to all neighbours</li>
-<li>when non-initiator receives first wake-up message it wakes up and sends a
-wake-up message to neighbours</li>
+<li>sends (n, id<sub>p</sub>, 1 false) and waits for message (n', i, h b)</li>
+<li>3rd value is the hop count</li>
+<li>4th value signals if another process q with the same id was encountered</li>
+</ul></li>
+<li>P only becomes leader if it receives its id after N hops with dirty bit
+set to false</li>
+</ul>
+</div>
+
+<div id="outline-container-org245254a" class="outline-4">
+<h4 id="org245254a"><span class="section-number-4">2.1.1</span> Message Complexity</h4>
+<div class="outline-text-4" id="text-2-1-1">
+<ul class="org-ul">
+<li>O(NlogN)</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orga0b76a8" class="outline-2">
+<h2 id="orga0b76a8"><span class="section-number-2">3</span> Echo Algorithm</h2>
+<div class="outline-text-2" id="text-3">
+<ul class="org-ul">
+<li>All processes know the network size N</li>
+<li>initiators active in <b>round 0</b></li>
+<li>Each proc selects random id and starts a wave
+<ul class="org-ul">
+<li>tagged with <b>id</b> and <b>round counter</b></li>
+</ul></li>
+<li>let proc p in wave i of round n be hit by wave j or round n'
+<ul class="org-ul">
+<li>if n' &gt; n or n' = n and j&gt;i
+<ul class="org-ul">
+<li>p adopts wave of j according to echo algorithm</li>
+</ul></li>
+<li>if n' &lt; n or n' = n and j &lt;i
+<ul class="org-ul">
+<li>p discards wave of j according to echo algorithm</li>
+</ul></li>
+</ul></li>
+<li>Each message sent upwards in constructed tree reports size of sub-tree</li>
+<li>All other messages report 0</li>
+<li>When proc p decided it computes the size of constructed tree.</li>
+<li>if computed size is not equal to N. wave did not complete</li>
+</ul>
+</div>
+
+<div id="outline-container-orge63fcae" class="outline-3">
+<h3 id="orge63fcae"><span class="section-number-3">3.1</span> Pitfalls</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+if a wave completes before covering whole network and advances to next round,
+message from possible leader form previous round will be discarded
+</p>
+
+<ul class="org-ul">
+<li>Don't need to be largest id in the network to progress to next round</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgabe369c" class="outline-3">
+<h3 id="orgabe369c"><span class="section-number-3">3.2</span> Computing the size of the network</h3>
+<div class="outline-text-3" id="text-3-2">
+<ul class="org-ul">
+<li>there is no Las Vegas algorithm to compute size of an anonymous ring</li>
+<li>Hence it is impossible to have a Las Vegas election algorithm if processes
+do not know network size</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-org0e1c404" class="outline-2">
+<h2 id="org0e1c404"><span class="section-number-2">4</span> Itai-Rodeh ring size algorithm</h2>
+<div class="outline-text-2" id="text-4">
+<ul class="org-ul">
+<li>Each process p maintains an estimate (<b>est<sub>p</sub></b>) of the ring size</li>
+<li>initially est<sub>p</sub> = 2</li>
+<li>p initiates an estimate round at:
+<ul class="org-ul">
+<li>start on an alg run</li>
+<li>at each update of est<sub>p</sub></li>
+</ul></li>
+<li>Each round, p selects random id<sub>p</sub> in \({1, .., R}\) sends <b>(est<sub>p</sub>, id<sub>p</sub>, 1)</b>
+<ul class="org-ul">
+<li>hc = hopcount</li>
+<li>p waits for a message <b>(est, id, hc)</b>
+<ul class="org-ul">
+<li>always hc &lt; est</li>
+</ul></li>
+</ul></li>
+<li>Every note <b>will</b> have the same estimate at the end of algorithm run</li>
+</ul>
+</div>
+
+<div id="outline-container-org2e0ecb7" class="outline-3">
+<h3 id="org2e0ecb7"><span class="section-number-3">4.1</span> How it works</h3>
+<div class="outline-text-3" id="text-4-1">
+<ul class="org-ul">
+<li>est &lt; est<sub>p</sub> P dismisses the message</li>
+<li>est &gt; est<sub>p</sub>
+<ul class="org-ul">
+<li>if h &lt; est p sends (est, id, h +1) and est<sub>p</sub> &lt;- est</li>
+<li>if h = est then est<sub>p</sub> &lt;- est + 1</li>
+</ul></li>
+<li>est = est<sub>p</sub>
+<ul class="org-ul">
+<li>if h &lt; est, then p sends (est, id, h+1)</li>
+<li>if h = est and id != id<sub>p</sub> then est<sub>p</sub> &lt;- est + 1</li>
+<li>if h = est and id = id<sub>p</sub> then p dismisses the message (possibly its own message returned)</li>
 </ul></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org2ab62c8" class="outline-3">
-<h3 id="org2ab62c8"><span class="section-number-3">2.2</span> Actions at awake process p</h3>
-<div class="outline-text-3" id="text-2-2">
+
+<div id="outline-container-orgc3f5ef4" class="outline-3">
+<h3 id="orgc3f5ef4"><span class="section-number-3">4.2</span> Pitfalls</h3>
+<div class="outline-text-3" id="text-4-2">
 <ul class="org-ul">
-<li>p waits until it receives id from all neighbours except 1
+<li>since it is a Monte Carlo algorithm it can result in est &lt; N at the end of
+run</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org98ae0bd" class="outline-3">
+<h3 id="org98ae0bd"><span class="section-number-3">4.3</span> Complexity</h3>
+<div class="outline-text-3" id="text-4-3">
 <ul class="org-ul">
-<li>the neighbour not waited for becomes p's parent <b>(parent<sub>p</sub>)</b></li>
+<li>The prob of computing an incorrect size thends to 0 as R tends to infinity</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgff9e5e9" class="outline-2">
+<h2 id="orgff9e5e9"><span class="section-number-2">5</span> Leader Election in unknown <b>acyclic</b> network</h2>
+<div class="outline-text-2" id="text-5">
+<ul class="org-ul">
+<li>A tree algorithm is used</li>
+<li>Networks containing a <b>cycle</b> result in a time-out
+<ul class="org-ul">
+<li>Tree algorithm results in deadlock in cyclic networks</li>
 </ul></li>
-<li>p computes the largest id <b>(max<sub>p</sub>)</b> from the id's received and its own id</li>
-<li>p sends parent request to <b>parent<sub>p</sub></b> tagged with <b>max<sub>p</sub></b></li>
-<li>if p  receives a parent request from its parent, tagged with q, it computes max'<sub>p</sub>.
+</ul>
+</div>
+<div id="outline-container-org65e71be" class="outline-3">
+<h3 id="org65e71be"><span class="section-number-3">5.1</span> How it works</h3>
+<div class="outline-text-3" id="text-5-1">
 <ul class="org-ul">
-<li>\(max'_p = max(max_p, q)\)</li>
+<li>When a process has one possible parent it sends a <b>parent request</b> to its neighbour
+<ul class="org-ul">
+<li>if request accepted an <b>ack</b> is sent back</li>
 </ul></li>
-<li>p sends information message to all neighbours (except parent) tagged with
-max'<sub>p</sub></li>
-<li>the information messages is forwarded through the network</li>
-<li>the process with id max'<sub>p</sub> becomes the <b>leader</b></li>
+<li>Last 2 parentless processes can send parent requests to each other.
+<ul class="org-ul">
+<li><b>Root contention</b></li>
+</ul></li>
+<li>Each process in root contention randomly decides to
+<ul class="org-ul">
+<li>(a) <i>wait some time</i> for a parent request from the other process</li>
+<li>(b) <i>immediately</i> send a parent request again</li>
+</ul></li>
+<li>node which waited becomes the leader of network</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org1220150" class="outline-3">
+<h3 id="org1220150"><span class="section-number-3">5.2</span> Interesting note</h3>
+<div class="outline-text-3" id="text-5-2">
+<ul class="org-ul">
+<li>During root contention it is better to give higher probability to sending
+again rather than to waiting
+<ul class="org-ul">
+<li><b>Highly dependant on the network condition</b></li>
+</ul></li>
 </ul>
 </div>
 </div>
@@ -482,7 +583,7 @@ max'<sub>p</sub></li>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Marijan Gradecak</p>
-<p class="date">Created: 2018-04-30 Mon 13:00</p>
+<p class="date">Created: 2018-04-30 Mon 13:05</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

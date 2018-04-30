@@ -1,123 +1,83 @@
 #+SETUPFILE: theme.setup
-#+TITLE: Elections in Anonymous Networks
-* Elections in anonymous networks
-  - anonymous networks are networks in which processes *do not* have unique id's
-    - storing id's too expensive
-    - processes do not wish to reveal ids'
-    - absence of unique hardware ids
+#+TITLE: Election Algorithms
 
-  - If one is a leader, how can each process be provided with a unique id
-    - wave algorithm, pass around token each process increments token value by 1
-      and uses it as id
+* Cyclic Networks
 
-** Pitfalls of elections
-   - Anonymous network elections not always terminating
+** Assumptions
+   - All processes have the same local algorithm
+   - the algorithm is /decentralised/
+   - Process ID's are /unique/ and form a /totally ordered/ set
 
-** Fairness
-   - if an event E can occur it is never ignored infinitely many times
+** Chang-Roberts (Directed Ring)
+   - Initially only initiators are *active* and send msg with their id's
+   - Passive processes (including non initiators) only pass on the messages
 
-** Probabilistic algorithms
-   - in a probabilistic algorithm a process may performed an even based on a
-     random choice
+*** (active) P receives msg q
+    - if $q < p$ \rightarrow p dismisses the message
+    - if $q > p$ \rightarrow p becomes *passive* and forwards the msg
+    - if $q = p$ \rightarrow p becomes the leader (msg has travelled all the way
+      around)
 
-*** Las Vegas and Monte Carlo
-    - An Alg is *Las Vegas* if
-      - the probability that it terminates is greater than 0
-      - all terminal configs are correct
-    - An Alg is *Monte Carlo* if
-      - it always terminates
-      - the probability that a terminal config is correct is > 0
+*** Complexity
+    - Worst-case msg complexity: $O(N^2)$
+    - Avg-case msg complexity: $O(NlogN)$
 
-* Itai-Rodeh election algorithm
-  - adaptation of Chang-Roberts
-  - All processes know the right size N
-  - Each initiator selects a *random id* from ${1, ..., N}$
-  - Processes may select the same id
-    - each message is tagged with hop count
-    - message arriving at source has hop count N
-    - if multiple processes select same largest id they start a new round
+      #+attr_html: :width 600px
+     [[./chang-roberts-example.png]]
 
-** How it works
-   - all initiators active in *round 0*
-   - let p be /active/ at the start of *election round* n
-   - p randomly selects id_{p}
-     - sends (n, id_{p}, 1 false) and waits for message (n', i, h b)
-     - 3rd value is the hop count
-     - 4th value signals if another process q with the same id was encountered
-   - P only becomes leader if it receives its id after N hops with dirty bit
-     set to false
+** Franklin's (Underacted Ring)
+   - Each active process p compares its own id with id of 2 nearest neighbours
+   - if a neighbour has a larger id, p becomes passive
+   - Done in a number of rounds
+   - Passive processes pass on messages
 
-*** Message Complexity
-    - O(NlogN)
+*** Round Structure
+    - In each round *active* process P:
+      - Sends its id to its nearest neighbours
+      - Receives id's *Q* and *R*
+        - if $max(q,r) < p$, \rightarrow p starts *new round* (survives to next round)
+        - if $max(q,r) > p$, \rightarrow p becomes *passive*
+        - if $max(q,r) = p$, \rightarrow p becomes the *leader*
 
-* Echo Algorithm
-  - All processes know the network size N
-  - initiators active in *round 0*
-  - Each proc selects random id and starts a wave
-    - tagged with *id* and *round counter*
-  - let proc p in wave i of round n be hit by wave j or round n'
-    - if n' > n or n' = n and j>i
-      - p adopts wave of j according to echo algorithm
-    - if n' < n or n' = n and j <i
-      - p discards wave of j according to echo algorithm
-  - Each message sent upwards in constructed tree reports size of sub-tree
-  - All other messages report 0
-  - When proc p decided it computes the size of constructed tree.
-  - if computed size is not equal to N. wave did not complete
+*** Complexity
+    - Worst-case msg complexity: $O(NlogN)$
+      - in each round at least half of the active processes becomes passive
+    - Each round takes $2N$ messages
 
-** Pitfalls
-   if a wave completes before covering whole network and advances to next round,
-   message from possible leader form previous round will be discarded
+    - Suppose ring is directed with clockwise orientation (id increasing
+      clockwise)
+      - If a process only compares its id with one of its predecessors it would
+        take N rounds to complete
 
-   - Don't need to be largest id in the network to progress to next round
+*** TODO Give an example with N = 4 that takes 3 rounds
 
-** Computing the size of the network
-   - there is no Las Vegas algorithm to compute size of an anonymous ring
-   - Hence it is impossible to have a Las Vegas election algorithm if processes
-     do not know network size
-* Itai-Rodeh ring size algorithm
-  - Each process p maintains an estimate (*est_{p}*) of the ring size
-  - initially est_{p} = 2
-  - p initiates an estimate round at:
-    - start on an alg run
-    - at each update of est_{p}
-  - Each round, p selects random id_{p} in ${1, .., R}$ sends *(est_{p}, id_{p}, 1)*
-    - hc = hopcount
-    - p waits for a message *(est, id, hc)*
-      - always hc < est
-  - Every note *will* have the same estimate at the end of algorithm run
+*** TODO Show that for any N there is a ring that takes 2 rounds
 
-** How it works
-   - est < est_p P dismisses the message
-   - est > est_p
-     - if h < est p sends (est, id, h +1) and est_p <- est
-     - if h = est then est_p <- est + 1
-   - est = est_p
-     - if h < est, then p sends (est, id, h+1)
-     - if h = est and id != id_p then est_p <- est + 1
-     - if h = est and id = id_p then p dismisses the message (possibly its own message returned)
-
-** Pitfalls
-   - since it is a Monte Carlo algorithm it can result in est < N at the end of
-     run
-
-** Complexity
-   - The prob of computing an incorrect size thends to 0 as R tends to infinity
-* Leader Election in unknown *acyclic* network
-  - A tree algorithm is used
-  - Networks containing a *cycle* result in a time-out
-    - Tree algorithm results in deadlock in cyclic networks
-** How it works
-   - When a process has one possible parent it sends a *parent request* to its neighbour
-     - if request accepted an *ack* is sent back
-   - Last 2 parentless processes can send parent requests to each other.
-     - *Root contention*
-   - Each process in root contention randomly decides to
-     - (a) /wait some time/ for a parent request from the other process
-     - (b) /immediately/ send a parent request again
-   - node which waited becomes the leader of network
-
-** Interesting note
-   - During root contention it is better to give higher probability to sending
-     again rather than to waiting
-     - *Highly dependant on the network condition*
+** Dolev-Klawe-Rodeh (Directed Ring)
+   - Essentially Franklin's algorithm adapted to work on directed networks
+*** How it works
+   - The comparison of id's of an active process p and its neighbours q and r is
+     performed at r
+     - $\rightarrow s \rightarrow q \rightarrow *p* \rightarrow r \rightarrow t \rightarrow$
+   - if $max(q,r) < p$ then r *changes its id to p* and sends out p
+   - if $max(q,r) > p$ then r becomes passive
+   - if $max(q,r) = p$ then r *announces p* to all processes
+   - process that originally had p notices announcement and becomes the leader
+* Acyclic Networks
+** Tree Election
+   - Tree algorithms can be used to elect leader
+   - Start with a *wake-up* phase driven by initiators
+     - send wake-up message to all neighbours
+     - when non-initiator receives first wake-up message it wakes up and sends a
+       wake-up message to neighbours
+** Actions at awake process p
+   - p waits until it receives id from all neighbours except 1
+     - the neighbour not waited for becomes p's parent *(parent_p)*
+   - p computes the largest id *(max_p)* from the id's received and its own id
+   - p sends parent request to *parent_p* tagged with *max_p*
+   - if p  receives a parent request from its parent, tagged with q, it computes max'_p.
+     - $max'_p = max(max_p, q)$
+   - p sends information message to all neighbours (except parent) tagged with
+     max'_p
+   - the information messages is forwarded through the network
+   - the process with id max'_p becomes the *leader*

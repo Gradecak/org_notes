@@ -1,0 +1,48 @@
+#+SETUPFILE: ~/Documents/Pages/theme.setup
+#+TITLE: Iterative Lexicographic Path Order (ILPO)
+
+* The star
+  - symbols marked with *
+    - f* has same arity as f
+    - * essentially means "we are going to make this term smaller"
+  - new reduction rules
+    - $\rightarrow_{put}$
+      - f(x) \rightarrow_{put} f_{x}(x)
+    - $\rightarrow_{select}$
+      - f_{*}(x) \rightarrow_{select} x
+    - $\rightarrow_{copy}$
+    - $\rightarrow_{lex}$
+      - move star inwards
+      - symbols to left of g do not change
+      - symbols to right of g change
+
+** Example, Addition and Multiplication
+   - $A(x, 0) \rightarrow x$
+   - $A(x,S(y)) \rightarrow S(A(x,y))$
+   - $M(x,0) \rightarrow 0$
+   - $M(x,S(y)) \rightarrow A(x,M(x,y))$
+
+*** $A(x, 0) \rightarrow x$
+    - A(x, 0)
+      - $\rightarrow_{put} A^*(x,0)$
+      - $\rightarrow_{select} x$
+
+*** $A(x,S(y)) \rightarrow S(A(x,y))$
+    - A(x,S(y))
+      - $\rightarrow_{put} A^*(x,S(y))$
+      - $\rightarrow_{copy} S(A^*(x,S(y)))$
+      - $\rightarrow_{lex} S(A(x,S^*(y)))$
+      - $\rightarrow_{select} S(A(x,y))$
+
+*** $M(x,0) \rightarrow 0$
+    - M(x,0)
+      - $\rightarrow_{put} M^*(x,0)$
+      - $\rightarrow_{select} 0$
+
+*** $M(x,S(y)) \rightarrow A(x,M(x,y))$
+    - M(x,S(y))
+      - $\rightarrow_{put} M^*(x,S(y))$
+      - $\rightarrow_{copy} A(M^*(x,S(y)),M^*(x,S(y)))$
+      - $\rightarrow_{select} A(x,M^*(x,S(y)))$
+      - $\rightarrow_{lex} A(x,M(x,S^*(y)))$
+      - $\rightarrow_{select} A(x,M(x,y))$

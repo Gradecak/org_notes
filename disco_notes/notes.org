@@ -1,0 +1,43 @@
+#+SETUPFILE: ../theme.setup
+#+TITLE: Quick Thoughts
+* Thoughts on project
+  Make distributed computation (management console) the primary focus. If we
+  have a good platform for distributed computation, we can get analytics tools,
+  DA visualisation etc by adding a layer over it that lets us monitor the system
+  while its running (be it visualising messages or gathering stats).
+
+  I think the two goals can be kept fairly separate
+
+  Make each node consist of 2 components.
+
+  - Execution
+  - Context
+
+** Execution
+   Essentially The computation that is going to be performed on each Node. The computation is
+   done on a Context which sets up the values/initial state of the Execution
+
+   #+BEGIN_src haskell
+     data Execution  =
+          -- ^ for simple computations defined inline within the file
+          Local {
+          -- ^ for setting the intial conditions for execution
+          setContext :: Context -> Execution
+          -- ^ for fetching current state of node (potentially used for
+          --  analytics/visualisation/validity checking etc)
+          getContext :: Execution -> Context
+          run        :: Execution -> IO ()
+          }
+          | Remote {
+          -- ^ Want to keep the ability to pull in a remote package and just run it ^
+          -- not sure how we would go about extracting state information/setting
+          -- state from remote packages though
+          }
+   #+END_src
+
+** Context
+   Comprised of:
+   - ~[State]~ of the computation (where ~head [State]~ gives current state)
+   - ~[Messages]~ list of messages received (~head [Message]~ gives latest message)
+   - ~[MessageType]~ a list of pre-defined messages that can be received/sent
+   - Constants/Initial values that an Execution may need
